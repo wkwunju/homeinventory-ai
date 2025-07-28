@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: #f8fafc;
+  }
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+  input, textarea, select {
+    @apply rounded-full bg-gray-100 border-0 px-4 py-2 text-base focus:ring-2 focus:ring-blue-500 focus:bg-white transition;
+  }
+  button {
+    @apply rounded-full font-bold text-base focus:ring-2 focus:ring-blue-500 transition;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-2xl shadow-md p-6;
+  }
+  .main-btn {
+    @apply bg-blue-600 text-white rounded-full w-full py-3 text-lg font-bold shadow-md hover:bg-blue-700 transition;
+  }
+  .secondary-btn {
+    @apply bg-gray-100 text-gray-900 rounded-full w-full py-3 text-lg font-bold shadow hover:bg-gray-200 transition;
+  }
+  .icon-btn {
+    @apply flex items-center justify-center rounded-full bg-gray-100 hover:bg-blue-100 w-12 h-12 text-blue-600;
+  }
+  .input {
+    @apply rounded-full bg-gray-100 border-0 px-4 py-2 text-base focus:ring-2 focus:ring-blue-500 focus:bg-white transition;
+  }
+} 
