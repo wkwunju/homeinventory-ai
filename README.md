@@ -6,7 +6,7 @@
 
 ### 🎯 物品识别与录入
 - 用户拍照上传架子照片（如冰箱、书柜、杂物架）
-- 系统自动识别图片中包含的物品（基于 Roboflow AI 模型）
+- 系统自动识别图片中包含的物品（基于 AWS Rekognition AI 服务）
 - 展示识别结果，支持用户修改名称/数量/保质期
 - 一键保存至库存列表
 
@@ -25,7 +25,7 @@
 |---------|-----------|------|
 | 前端开发 | Next.js + Tailwind CSS | 现代化 React 框架，响应式设计 |
 | 状态管理 | React useState/useContext | 轻量级状态管理 |
-| 图像识别（AI） | Roboflow Hosted API | 无需训练、直接上传照片识别 |
+| 图像识别（AI） | AWS Rekognition | 亚马逊云服务，高精度物体和文字识别 |
 | 数据存储 & Auth | Supabase Database + Auth | 一体化托管，开箱即用 |
 | 后端 API | Next.js API Routes | 简单、无需额外服务器 |
 | 文件上传存储 | Supabase Storage | 文件上传 & 图像CDN 托管 |
@@ -57,9 +57,10 @@ cp env.example .env.local
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Roboflow 配置
-ROBOFLOW_API_KEY=your_roboflow_api_key
-ROBOFLOW_MODEL_URL=your_roboflow_model_url
+# AWS Rekognition 配置
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_REGION=us-east-1
 ```
 
 ### 4. 数据库设置
@@ -106,16 +107,23 @@ npm run dev
    - Storage（用于上传照片）
 3. 获取 `SUPABASE_URL` 和 `SUPABASE_ANON_KEY`
 
-### 2. Roboflow
-1. 注册账号：[https://roboflow.com](https://roboflow.com)
-2. 创建项目并启用"Hosted Inference API"
-3. 获取 `API Key` 和 `Model URL`
-4. 用于上传照片并返回物品识别结果
+### 2. AWS Rekognition
+1. 注册 AWS 账号：[https://aws.amazon.com](https://aws.amazon.com)
+2. 创建 IAM 用户并分配 `AmazonRekognitionFullAccess` 权限
+3. 获取 `AWS_ACCESS_KEY_ID` 和 `AWS_SECRET_ACCESS_KEY`
+4. 设置 `AWS_REGION`（推荐：us-east-1）
+
+**AWS Rekognition 优势：**
+- 高精度物体识别（1000+ 类别）
+- 文字识别（OCR）功能
+- 无需训练，开箱即用
+- 按使用量付费，成本可控
+- 支持多种图像格式
 
 ## 🎨 功能特性
 
 - **响应式设计**：支持手机、平板、桌面端
-- **AI 图像识别**：基于 Roboflow 的预训练模型
+- **AI 图像识别**：基于 AWS Rekognition 的高精度识别
 - **实时搜索**：支持物品名称搜索
 - **智能筛选**：按过期状态、分类筛选
 - **过期提醒**：自动标识即将过期和已过期物品
