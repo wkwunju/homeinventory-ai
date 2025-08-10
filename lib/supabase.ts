@@ -1,24 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-// 检查环境变量是否配置
-if (!supabaseUrl || !supabaseAnonKey || supabaseUrl === 'your_supabase_url') {
-  console.warn('Supabase 环境变量未正确配置')
-}
-
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key',
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true
-    }
-  }
-)
+// 使用 Next.js Auth Helpers 的客户端实例，以便在浏览器中登录后写入服务器可读的认证 Cookie
+export const supabase = createClientComponentClient()
 
 // 数据库类型定义
 export interface Item {
