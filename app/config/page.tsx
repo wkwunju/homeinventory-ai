@@ -6,6 +6,8 @@ import { ArrowLeft, Settings, Globe, User, Bell, Shield, Info } from 'lucide-rea
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -31,55 +33,53 @@ export default function SettingsPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50 pb-24">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
         <div className="w-full max-w-2xl mx-auto px-4 pt-8">
           {/* 头部 */}
-          <div className="flex items-center gap-4 mb-6">
-            <button
-              onClick={() => router.back()}
-              className="icon-btn"
-            >
+          <div className="flex items-center gap-4 mb-8">
+            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-12 w-12">
               <ArrowLeft className="w-5 h-5" />
-            </button>
+            </Button>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">{t('settings.title')}</h1>
-              <p className="text-gray-600">{t('settings.languageDesc')}</p>
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">{t('settings.title')}</h1>
+              <p className="text-slate-600 text-lg mt-2">{t('settings.languageDesc')}</p>
             </div>
           </div>
 
           {/* 设置选项 */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* 语言设置 */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-blue-600" />
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-sky-100 to-blue-100 rounded-xl flex items-center justify-center">
+                    <Globe className="w-5 h-5 text-sky-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl text-slate-800">{t('settings.language')}</CardTitle>
+                    <p className="text-sm text-slate-500">{t('settings.languageDesc')}</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-lg font-semibold">{t('settings.language')}</h2>
-                  <p className="text-sm text-gray-500">{t('settings.languageDesc')}</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
+              </CardHeader>
+              <CardContent className="space-y-3">
                 <button
                   onClick={() => handleLanguageChange('zh')}
-                  className={`w-full p-4 border rounded-lg text-left transition-colors ${
+                  className={`w-full p-4 border rounded-2xl text-left transition-all duration-300 ${
                     language === 'zh'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-sky-500 bg-gradient-to-br from-sky-50/80 to-blue-50/80 text-sky-700 shadow-lg shadow-sky-100/50'
+                      : 'border-slate-200/60 hover:border-sky-300/80 hover:bg-sky-50/80 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-lg">🇨🇳</span>
                       <div>
-                        <div className="font-medium">{t('settings.chinese')}</div>
-                        <div className="text-sm text-gray-500">简体中文</div>
+                        <div className="font-medium text-slate-800">{t('settings.chinese')}</div>
+                        <div className="text-sm text-slate-600">简体中文</div>
                       </div>
                     </div>
                     {language === 'zh' && (
-                      <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                      <div className="w-5 h-5 bg-sky-500 rounded-full flex items-center justify-center">
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       </div>
                     )}
@@ -88,135 +88,120 @@ export default function SettingsPage() {
 
                 <button
                   onClick={() => handleLanguageChange('en')}
-                  className={`w-full p-4 border rounded-lg text-left transition-colors ${
+                  className={`w-full p-4 border rounded-2xl text-left transition-all duration-300 ${
                     language === 'en'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-sky-500 bg-gradient-to-br from-sky-50/80 to-blue-50/80 text-sky-700 shadow-lg shadow-sky-100/50'
+                      : 'border-slate-200/60 hover:border-sky-300/80 hover:bg-sky-50/80 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-lg">🇺🇸</span>
                       <div>
-                        <div className="font-medium">{t('settings.english')}</div>
-                        <div className="text-sm text-gray-500">English</div>
+                        <div className="font-medium text-slate-800">{t('settings.english')}</div>
+                        <div className="text-sm text-slate-600">English</div>
                       </div>
                     </div>
                     {language === 'en' && (
-                      <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                      <div className="w-5 h-5 bg-sky-500 rounded-full flex items-center justify-center">
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       </div>
                     )}
                   </div>
                 </button>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* 账户信息 */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <User className="w-5 h-5 text-green-600" />
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl flex items-center justify-center">
+                    <User className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl text-slate-800">{t('settings.account')}</CardTitle>
+                    <p className="text-sm text-slate-500">{t('settings.profile')}</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-lg font-semibold">{t('settings.account')}</h2>
-                  <p className="text-sm text-gray-500">{t('settings.profile')}</p>
+              </CardHeader>
+              <CardContent>
+                <div className="p-4 bg-slate-50/80 rounded-2xl">
+                  <div className="text-sm text-slate-600">{t('auth.email')}</div>
+                  <div className="font-medium text-slate-800">{user?.email}</div>
                 </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="text-sm text-gray-500">{t('auth.email')}</div>
-                  <div className="font-medium">{user?.email}</div>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* 其他设置 */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Settings className="w-5 h-5 text-purple-600" />
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-fuchsia-100 rounded-xl flex items-center justify-center">
+                    <Settings className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl text-slate-800">{t('settings.preferences')}</CardTitle>
+                    <p className="text-sm text-slate-500">应用偏好设置</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-lg font-semibold">{t('settings.preferences')}</h2>
-                  <p className="text-sm text-gray-500">应用偏好设置</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <button className="w-full p-4 border border-gray-200 rounded-lg text-left hover:border-gray-300 transition-colors">
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <button className="w-full p-4 border border-slate-200/60 rounded-2xl text-left hover:border-slate-300/80 hover:bg-slate-50/80 transition-all duration-300 bg-white/80 backdrop-blur-sm">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Bell className="w-5 h-5 text-gray-500" />
+                      <Bell className="w-5 h-5 text-slate-500" />
                       <div>
-                        <div className="font-medium">通知设置</div>
-                        <div className="text-sm text-gray-500">管理推送通知</div>
+                        <div className="font-medium text-slate-800">通知设置</div>
+                        <div className="text-sm text-slate-600">管理推送通知</div>
                       </div>
                     </div>
-                    <div className="text-gray-400">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+                    <div className="text-slate-400">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </div>
                   </div>
                 </button>
 
-                <button className="w-full p-4 border border-gray-200 rounded-lg text-left hover:border-gray-300 transition-colors">
+                <button className="w-full p-4 border border-slate-200/60 rounded-2xl text-left hover:border-slate-300/80 hover:bg-slate-50/80 transition-all duration-300 bg-white/80 backdrop-blur-sm">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-gray-500" />
+                      <Shield className="w-5 h-5 text-slate-500" />
                       <div>
-                        <div className="font-medium">隐私设置</div>
-                        <div className="text-sm text-gray-500">管理数据隐私</div>
+                        <div className="font-medium text-slate-800">隐私设置</div>
+                        <div className="text-sm text-slate-600">管理数据隐私</div>
                       </div>
                     </div>
-                    <div className="text-gray-400">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+                    <div className="text-slate-400">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </div>
                   </div>
                 </button>
 
-                <button className="w-full p-4 border border-gray-200 rounded-lg text-left hover:border-gray-300 transition-colors">
+                <button className="w-full p-4 border border-slate-200/60 rounded-2xl text-left hover:border-slate-300/80 hover:bg-slate-50/80 transition-all duration-300 bg-white/80 backdrop-blur-sm">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Info className="w-5 h-5 text-gray-500" />
+                      <Info className="w-5 h-5 text-slate-500" />
                       <div>
-                        <div className="font-medium">{t('settings.about')}</div>
-                        <div className="text-sm text-gray-500">关于应用</div>
+                        <div className="font-medium text-slate-800">{t('settings.about')}</div>
+                        <div className="text-sm text-slate-600">关于应用</div>
                       </div>
                     </div>
-                    <div className="text-gray-400">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+                    <div className="text-slate-400">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </div>
                   </div>
                 </button>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* 退出登录 */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <button
-                onClick={handleLogout}
-                disabled={loading}
-                className="w-full p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50"
-              >
-                <div className="flex items-center justify-center gap-2">
-                  {loading ? (
-                    <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                  )}
+            <Card>
+              <CardContent>
+                <Button onClick={handleLogout} disabled={loading} variant="destructive" className="w-full h-12">
                   {loading ? t('common.loading') : t('auth.logout')}
-                </div>
-              </button>
-            </div>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

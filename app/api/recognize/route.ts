@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { recognizeImage } from '@/lib/aws-rekognition'
+import { recognizeImageWithOpenAI } from '@/lib/openai-vision'
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,38 +18,85 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes)
     const base64Image = buffer.toString('base64')
 
-    // 检查 AWS 配置
-    const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID
-    const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+    // 检查 OpenAI 配置
+    const openaiApiKey = process.env.OPENAI_API_KEY
 
-    if (!awsAccessKeyId || !awsSecretAccessKey) {
-      // 如果没有配置 AWS，返回模拟数据
-      console.log('AWS Rekognition 未配置，返回模拟数据')
+    if (!openaiApiKey) {
+      // 如果没有配置 OpenAI，返回模拟数据
+      console.log('OpenAI 未配置，返回模拟数据')
       return NextResponse.json({
         items: [
-          {
-            name: '苹果',
-            confidence: 0.85,
-            type: 'label'
+          { 
+            name: '红富士苹果', 
+            confidence: 0.85, 
+            type: 'label',
+            quantity: 6,
+            category: '食品',
+            expire_date: null,
+            value: 24.00,
+            brand: '农夫山泉',
+            purchase_date: null,
+            purchase_source: null,
+            notes: '新鲜红富士苹果，脆甜多汁，中号，红色',
+            condition: 'new',
+            priority: 'normal',
+            suggestedLocation: '冰箱冷藏室',
+            needsExpiryDate: true,
+            expiryDateHint: '苹果通常可保存7-14天',
+            unit: '个',
+            size: '中号',
+            color: '红色'
           },
-          {
-            name: '牛奶',
-            confidence: 0.78,
-            type: 'label'
+          { 
+            name: '蒙牛纯牛奶', 
+            confidence: 0.78, 
+            type: 'text',
+            quantity: 2,
+            category: '食品',
+            expire_date: null,
+            value: 15.00,
+            brand: '蒙牛',
+            purchase_date: null,
+            purchase_source: null,
+            notes: '250ml 纯牛奶，纸盒包装，需要冷藏保存，开封后24小时内饮用',
+            condition: 'new',
+            priority: 'normal',
+            suggestedLocation: '冰箱冷藏室',
+            needsExpiryDate: true,
+            expiryDateHint: '牛奶通常保质期7-14天',
+            unit: '盒',
+            size: '250ml',
+            color: '白色'
           },
-          {
-            name: '书籍',
-            confidence: 0.92,
-            type: 'label'
+          { 
+            name: '全麦面包', 
+            confidence: 0.82, 
+            type: 'label',
+            quantity: 1,
+            category: '食品',
+            expire_date: null,
+            value: 8.50,
+            brand: '桃李',
+            purchase_date: null,
+            purchase_source: null,
+            notes: '全麦面包，营养丰富，400g，避免阳光直射，保持干燥',
+            condition: 'new',
+            priority: 'normal',
+            suggestedLocation: '厨房面包盒',
+            needsExpiryDate: true,
+            expiryDateHint: '面包通常保质期3-5天',
+            unit: '包',
+            size: '400g',
+            color: '棕色'
           }
         ],
         image: base64Image,
-        note: '这是模拟数据，请配置 AWS Rekognition 获取真实识别结果'
+        note: '这是模拟数据，请配置 OpenAI 获取真实识别结果'
       })
     }
 
-    // 使用 AWS Rekognition 进行图像识别
-    const recognizedItems = await recognizeImage(buffer)
+    // 使用 OpenAI 视觉模型进行图像识别
+    const recognizedItems = await recognizeImageWithOpenAI(buffer, file.type || 'image/jpeg')
 
     return NextResponse.json({
       items: recognizedItems,

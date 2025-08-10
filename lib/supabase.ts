@@ -13,28 +13,9 @@ export const supabase = createClient(
   supabaseAnonKey || 'placeholder-key',
   {
     auth: {
-      // 强制使用 Cookie 而不是 localStorage
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce',
-      // 关键：使用 Cookie 存储
-      storage: {
-        getItem: (key: string) => {
-          if (typeof window === 'undefined') return null
-          const cookies = document.cookie.split(';')
-          const cookie = cookies.find(c => c.trim().startsWith(`${key}=`))
-          return cookie ? cookie.split('=')[1] : null
-        },
-        setItem: (key: string, value: string) => {
-          if (typeof window === 'undefined') return
-          document.cookie = `${key}=${value}; path=/; max-age=31536000; SameSite=Lax`
-        },
-        removeItem: (key: string) => {
-          if (typeof window === 'undefined') return
-          document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
-        }
-      }
+      detectSessionInUrl: true
     }
   }
 )

@@ -27,7 +27,8 @@ const translations = {
       success: '成功',
       warning: '警告',
       info: '信息',
-      optional: '可选'
+      optional: '可选',
+      understand: '知道了'
     },
     navigation: {
       home: '首页',
@@ -137,6 +138,28 @@ const translations = {
       addSuccess: '成功添加 {count} 个物品',
       addError: '添加物品失败'
     },
+    // Added upload translations
+    upload: {
+      title: '智能上传',
+      description: '上传或拍照，自动识别物品并快速添加到清单',
+      dragAndDrop: '拖放图片到这里，或选择文件',
+      supportedFormats: '支持 JPG、PNG，最大 5MB',
+      selectFile: '选择文件',
+      takePhoto: '拍照',
+      fileSelected: '已选择文件',
+      changeFile: '更换文件',
+      uploading: '正在上传...',
+      uploadNow: '立即上传',
+      howItWorks: '使用说明',
+      step1Title: '选择或拍摄照片',
+      step1Description: '从相册选择或使用相机拍摄包含物品的清晰照片',
+      step2Title: 'AI 自动识别',
+      step2Description: '系统将识别图片中的物品并生成建议',
+      step3Title: '确认并保存',
+      step3Description: '检查识别结果，必要时编辑后保存到空间',
+      cameraNotSupported: '暂不支持相机',
+      cameraNotSupportedDescription: '当前设备或浏览器不支持直接调用相机，请改用上传图片'
+    },
     spaces: {
       addTitle: '添加空间',
       selectOrCreateRoom: '选择或创建房间',
@@ -183,7 +206,8 @@ const translations = {
       success: 'Success',
       warning: 'Warning',
       info: 'Info',
-      optional: 'Optional'
+      optional: 'Optional',
+      understand: 'Got it'
     },
     navigation: {
       home: 'Home',
@@ -293,6 +317,28 @@ const translations = {
       addSuccess: 'Successfully added {count} items',
       addError: 'Failed to add items'
     },
+    // Added upload translations
+    upload: {
+      title: 'Smart Upload',
+      description: 'Upload or take a photo, let AI recognize items, and add them quickly',
+      dragAndDrop: 'Drag and drop an image here, or choose a file',
+      supportedFormats: 'Supports JPG, PNG up to 5MB',
+      selectFile: 'Choose File',
+      takePhoto: 'Take Photo',
+      fileSelected: 'File Selected',
+      changeFile: 'Change File',
+      uploading: 'Uploading...',
+      uploadNow: 'Upload Now',
+      howItWorks: 'How it works',
+      step1Title: 'Choose or take a photo',
+      step1Description: 'Pick from gallery or take a clear photo with the items',
+      step2Title: 'AI recognition',
+      step2Description: 'We detect items in the image and generate suggestions',
+      step3Title: 'Review and save',
+      step3Description: 'Check results, edit if needed, then save to a space',
+      cameraNotSupported: 'Camera not supported',
+      cameraNotSupportedDescription: 'Your device or browser does not support camera access. Please upload an image instead.'
+    },
     spaces: {
       addTitle: 'Add Space',
       selectOrCreateRoom: 'Select or Create Room',
@@ -356,7 +402,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     
     let result = typeof value === 'string' ? value : key
     
-    // 替换参数
     if (params) {
       Object.keys(params).forEach(param => {
         result = result.replace(new RegExp(`{${param}}`, 'g'), params[param])

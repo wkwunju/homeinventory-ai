@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import Navigation from '@/components/navigation'
+import TopBar from '@/components/topbar'
 import { AuthProvider } from '@/lib/auth-context'
 import { LanguageProvider } from '@/lib/i18n'
 
@@ -22,9 +22,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <LanguageProvider>
           <AuthProvider>
-            <div className="min-h-screen bg-gray-50 pb-20">
+            <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pt-16">
+              <TopBar />
               {children}
-              <Navigation />
             </div>
           </AuthProvider>
         </LanguageProvider>

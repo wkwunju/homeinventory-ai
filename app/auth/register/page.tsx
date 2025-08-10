@@ -4,7 +4,10 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
-import { ArrowLeft, Mail, Lock, Eye, EyeOff, User } from 'lucide-react'
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, User, CheckCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -25,7 +28,6 @@ export default function RegisterPage() {
     setLoading(true)
     setError('')
 
-    // 验证密码
     if (formData.password !== formData.confirmPassword) {
       setError('两次输入的密码不一致')
       setLoading(false)
@@ -44,7 +46,6 @@ export default function RegisterPage() {
         setError(error.message)
       } else {
         setSuccess(true)
-        // 注册成功后跳转到登录页面
         setTimeout(() => {
           router.push('/auth/login')
         }, 2000)
@@ -65,137 +66,124 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 flex items-center justify-center px-4">
         <div className="w-full max-w-md">
-          <div className="card text-center space-y-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="w-8 h-8 text-green-600" />
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900">注册成功！</h2>
-            <p className="text-gray-600">
-              请检查您的邮箱并点击验证链接完成注册。
-            </p>
-            <p className="text-sm text-gray-500">
-              即将跳转到登录页面...
-            </p>
-          </div>
+          <Card>
+            <CardContent className="p-10 text-center space-y-4">
+              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <CheckCircle className="w-10 h-10 text-emerald-600" />
+              </div>
+              <h2 className="text-2xl font-semibold text-slate-800">注册成功！</h2>
+              <p className="text-slate-600">请检查您的邮箱并点击验证链接完成注册。</p>
+              <p className="text-sm text-slate-500">即将跳转到登录页面...</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center gap-2 mb-8">
-          <button
-            className="icon-btn"
-            onClick={() => router.back()}
-          >
+        <div className="flex items-center gap-3 mb-8">
+          <Button variant="ghost" size="icon" className="h-12 w-12" onClick={() => router.back()}>
             <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-2xl font-bold tracking-tight">注册</h1>
+          </Button>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">注册</h1>
         </div>
 
-        <div className="card space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                邮箱地址
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
-                  className="input w-full pl-10"
-                  placeholder="请输入邮箱地址"
-                />
+        <Card>
+          <CardContent className="p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">邮箱地址</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <Input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
+                    placeholder="请输入邮箱地址"
+                    className="pl-10"
+                  />
+                </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">密码</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={formData.password}
+                    onChange={(e) => handleChange('password', e.target.value)}
+                    placeholder="请输入密码（至少6位）"
+                    className="pl-10 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">确认密码</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <Input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    value={formData.confirmPassword}
+                    onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                    placeholder="请再次输入密码"
+                    className="pl-10 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="text-red-600 text-sm bg-red-50/80 border border-red-200 rounded-xl px-3 py-2">
+                  {error}
+                </div>
+              )}
+
+              <Button type="submit" disabled={loading} variant="primary" size="lg" className="w-full h-12 text-base">
+                {loading ? '注册中...' : '注册'}
+              </Button>
+            </form>
+
+            <div className="text-center">
+              <p className="text-sm text-slate-600">
+                已有账号？{' '}
+                <Link href="/auth/login" className="text-sky-600 hover:text-sky-700 font-medium">
+                  立即登录
+                </Link>
+              </p>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                密码
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={formData.password}
-                  onChange={(e) => handleChange('password', e.target.value)}
-                  className="input w-full pl-10 pr-10"
-                  placeholder="请输入密码（至少6位）"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                确认密码
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  required
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                  className="input w-full pl-10 pr-10"
-                  placeholder="请再次输入密码"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <div className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full"
-            >
-              {loading ? '注册中...' : '注册'}
-            </button>
-          </form>
-
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              已有账号？{' '}
-              <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                立即登录
-              </Link>
-            </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

@@ -9,6 +9,10 @@ import { ArrowLeft, ChevronRight } from 'lucide-react'
 import IconSelector from '@/components/icon-selector'
 import { getPresetLocationsByRoomType, getPresetLocationById } from '@/lib/preset-locations'
 import { getPresetRooms, getPresetRoomById } from '@/lib/preset-rooms'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 interface Space {
   id: string
@@ -323,232 +327,236 @@ export default function AddSpacePage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50 pb-24">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
         <div className="w-full max-w-2xl mx-auto px-4 pt-8">
           {/* 头部 */}
-          <div className="flex items-center gap-4 mb-6">
-            <button
+          <div className="flex items-center gap-4 mb-8">
+            <Button
               onClick={handleBack}
-              className="icon-btn"
+              variant="ghost"
+              size="icon"
+              className="h-12 w-12"
             >
               <ArrowLeft className="w-5 h-5" />
-            </button>
+            </Button>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">{t('spaces.addTitle')}</h1>
-              <p className="text-gray-600">
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                {t('spaces.addTitle')}
+              </h1>
+              <p className="text-slate-600 text-lg mt-2">
                 {step === 'room' ? t('spaces.selectOrCreateRoom') : t('spaces.addLocationForRoom', { room: selectedRoom?.name })}
               </p>
             </div>
           </div>
 
           {/* 步骤指示器 */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className={`flex items-center gap-2 ${step === 'room' ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step === 'room' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+          <div className="flex items-center gap-3 mb-8">
+            <div className={`flex items-center gap-3 ${step === 'room' ? 'text-sky-600' : 'text-slate-400'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                step === 'room' ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg shadow-sky-200/50' : 'bg-slate-200/60'
               }`}>
                 1
               </div>
-              <span>{t('spaces.selectRoom')}</span>
+              <span className="font-medium">{t('spaces.selectRoom')}</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-            <div className={`flex items-center gap-2 ${step === 'furniture' ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step === 'furniture' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            <ChevronRight className="w-5 h-5 text-slate-400" />
+            <div className={`flex items-center gap-3 ${step === 'furniture' ? 'text-sky-600' : 'text-slate-400'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                step === 'furniture' ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg shadow-sky-200/50' : 'bg-slate-200/60'
               }`}>
                 2
               </div>
-              <span>{t('spaces.selectLocation')}</span>
+              <span className="font-medium">{t('spaces.selectLocation')}</span>
             </div>
           </div>
 
           {/* 内容区域 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            {step === 'room' ? (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">{t('spaces.selectRoom')}</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {commonRooms.map(room => (
-                      <button
-                        key={room.id}
-                        type="button"
-                        onClick={() => handleRoomSelect(room.id)}
-                        className={`p-4 border rounded-lg text-left transition-colors ${
-                          formData.preset_id === room.id
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-                        }`}
-                      >
-                        <div className="text-2xl mb-2">{room.icon}</div>
-                        <div className="font-medium">{room.name}</div>
-                        <div className="text-sm text-gray-500">{room.description}</div>
-                      </button>
-                    ))}
+          <Card>
+            <CardContent className="p-8">
+              {step === 'room' ? (
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-6 text-slate-800">{t('spaces.selectRoom')}</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {commonRooms.map(room => (
+                        <button
+                          key={room.id}
+                          type="button"
+                          onClick={() => handleRoomSelect(room.id)}
+                          className={`p-6 border rounded-2xl text-left transition-all duration-300 ${
+                            formData.preset_id === room.id
+                              ? 'border-sky-500 bg-gradient-to-br from-sky-50/80 to-blue-50/80 text-sky-700 shadow-lg shadow-sky-100/50'
+                              : 'border-slate-200/60 hover:border-sky-300/80 hover:bg-sky-50/80 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md'
+                          }`}
+                        >
+                          <div className="text-3xl mb-3">{room.icon}</div>
+                          <div className="font-semibold text-slate-800">{room.name}</div>
+                          <div className="text-sm text-slate-600 mt-1">{room.description}</div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">{t('spaces.createCustomRoom')}</h3>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label htmlFor="custom-room" className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('spaces.roomName')}
-                      </label>
-                      <input
-                        type="text"
-                        id="custom-room"
-                        value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        className="input w-full"
-                        placeholder={t('spaces.roomNamePlaceholder')}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('spaces.roomIcon')}
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setShowIconSelector(true)}
-                        className="w-full p-4 border border-gray-300 rounded-lg text-left hover:border-blue-300 hover:bg-blue-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="text-2xl">{formData.icon}</div>
-                          <div>
-                            <div className="font-medium">{t('spaces.selectIcon')}</div>
-                            <div className="text-sm text-gray-500">{t('spaces.clickToSelectIcon')}</div>
-                          </div>
-                        </div>
-                      </button>
-                    </div>
-                    <div>
-                      <label htmlFor="custom-description" className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('spaces.description')} ({t('common.optional')})
-                      </label>
-                      <textarea
-                        id="custom-description"
-                        value={formData.description}
-                        onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                        className="input w-full"
-                        rows={2}
-                        placeholder={t('spaces.roomDescriptionPlaceholder')}
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={loading || !formData.name.trim()}
-                      className="main-btn w-full"
-                    >
-                      {loading ? t('common.loading') : t('spaces.createRoom')}
-                    </button>
-                  </form>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">{t('spaces.selectLocationForRoom', { room: selectedRoom?.originalName || selectedRoom?.name })}</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {selectedRoom && commonFurniture[selectedRoom.originalName || selectedRoom.name as keyof typeof commonFurniture]?.map((furniture: any) => (
-                      <button
-                        key={furniture.id}
-                        type="button"
-                        onClick={() => handleFurnitureSelect(furniture.id)}
-                        className={`p-4 border rounded-lg text-left transition-colors ${
-                          formData.preset_id === furniture.id 
-                            ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                            : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-                        }`}
-                      >
-                        <div className="text-2xl mb-2">{furniture.icon}</div>
-                        <div className="font-medium">{furniture.name}</div>
-                        <div className="text-sm text-gray-500">{furniture.description}</div>
-                      </button>
-                    ))}
-                    {selectedRoom && !commonFurniture[selectedRoom.originalName || selectedRoom.name as keyof typeof commonFurniture] && (
-                      <div className="col-span-2 text-center py-8 text-gray-500">
-                        <p>该房间类型暂无预设位置选项</p>
-                        <p className="text-sm mt-2">请使用下方自定义位置功能</p>
+                  <div className="border-t border-slate-200/60 pt-8">
+                    <h3 className="text-xl font-semibold mb-6 text-slate-800">{t('spaces.createCustomRoom')}</h3>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div>
+                        <label htmlFor="custom-room" className="block text-sm font-semibold text-slate-700 mb-3">
+                          {t('spaces.roomName')}
+                        </label>
+                        <Input
+                          type="text"
+                          id="custom-room"
+                          value={formData.name}
+                          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                          placeholder={t('spaces.roomNamePlaceholder')}
+                          required
+                        />
                       </div>
-                    )}
-                  </div>
-                  
-
-                </div>
-
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">{t('spaces.createCustomLocation')}</h3>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label htmlFor="custom-furniture" className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('spaces.locationName')}
-                      </label>
-                      <input
-                        type="text"
-                        id="custom-furniture"
-                        value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        className="input w-full"
-                        placeholder={t('spaces.locationNamePlaceholder')}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('spaces.locationIcon')}
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setShowIconSelector(true)}
-                        className="w-full p-4 border border-gray-300 rounded-lg text-left hover:border-blue-300 hover:bg-blue-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="text-2xl">{formData.icon}</div>
-                          <div>
-                            <div className="font-medium">{t('spaces.selectIcon')}</div>
-                            <div className="text-sm text-gray-500">{t('spaces.clickToSelectIcon')}</div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-3">
+                          {t('spaces.roomIcon')}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowIconSelector(true)}
+                          className="w-full p-5 border border-slate-200/60 rounded-2xl text-left hover:border-sky-300/80 hover:bg-sky-50/80 transition-all duration-300 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="text-3xl">{formData.icon}</div>
+                            <div>
+                              <div className="font-semibold text-slate-800">{t('spaces.selectIcon')}</div>
+                              <div className="text-sm text-slate-600 mt-1">{t('spaces.clickToSelectIcon')}</div>
+                            </div>
                           </div>
-                        </div>
-                      </button>
-                    </div>
-                    <div>
-                      <label htmlFor="custom-furniture-description" className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('spaces.description')} ({t('common.optional')})
-                      </label>
-                      <textarea
-                        id="custom-furniture-description"
-                        value={formData.description}
-                        onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                        className="input w-full"
-                        rows={2}
-                        placeholder={t('spaces.locationDescriptionPlaceholder')}
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={loading || !formData.name.trim()}
-                      className="main-btn w-full"
-                    >
-                      {loading ? t('common.loading') : `${t('spaces.createLocation')} (${formData.name || 'undefined'})`}
-                    </button>
-                  </form>
+                        </button>
+                      </div>
+                      <div>
+                        <label htmlFor="custom-description" className="block text-sm font-semibold text-slate-700 mb-3">
+                          {t('spaces.description')} ({t('common.optional')})
+                        </label>
+                        <Textarea
+                          id="custom-description"
+                          value={formData.description}
+                          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                          rows={3}
+                          placeholder={t('spaces.roomDescriptionPlaceholder')}
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        disabled={loading || !formData.name.trim()}
+                        variant="primary"
+                        size="lg"
+                        className="w-full h-14 text-lg"
+                      >
+                        {loading ? t('common.loading') : t('spaces.createRoom')}
+                      </Button>
+                    </form>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+              ) : (
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-6 text-slate-800">{t('spaces.selectLocationForRoom', { room: selectedRoom?.originalName || selectedRoom?.name })}</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedRoom && commonFurniture[selectedRoom.originalName || selectedRoom.name as keyof typeof commonFurniture]?.map((furniture: any) => (
+                        <button
+                          key={furniture.id}
+                          type="button"
+                          onClick={() => handleFurnitureSelect(furniture.id)}
+                          className={`p-6 border rounded-2xl text-left transition-all duration-300 ${
+                            formData.preset_id === furniture.id 
+                              ? 'border-sky-500 bg-gradient-to-br from-sky-50/80 to-blue-50/80 text-sky-700 shadow-lg shadow-sky-100/50' 
+                              : 'border-slate-200/60 hover:border-sky-300/80 hover:bg-slate-50/80 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md'
+                          }`}
+                        >
+                          <div className="text-3xl mb-3">{furniture.icon}</div>
+                          <div className="font-semibold text-slate-800">{furniture.name}</div>
+                          <div className="text-sm text-slate-600 mt-1">{furniture.description}</div>
+                        </button>
+                      ))}
+                      {selectedRoom && !commonFurniture[selectedRoom.originalName || selectedRoom.name as keyof typeof commonFurniture] && (
+                        <div className="col-span-2 text-center py-12 text-slate-500">
+                          <p className="text-lg">该房间类型暂无预设位置选项</p>
+                          <p className="text-sm mt-2">请使用下方自定义位置功能</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-      {/* 图标选择器 */}
-      {showIconSelector && (
-        <IconSelector
-          selectedIcon={formData.icon}
-          onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
-          onClose={() => setShowIconSelector(false)}
-        />
-      )}
+                  <div className="border-t border-slate-200/60 pt-8">
+                    <h3 className="text-xl font-semibold mb-6 text-slate-800">{t('spaces.createCustomLocation')}</h3>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div>
+                        <label htmlFor="custom-furniture" className="block text-sm font-semibold text-slate-700 mb-3">
+                          {t('spaces.locationName')}
+                        </label>
+                        <Input
+                          type="text"
+                          id="custom-furniture"
+                          value={formData.name}
+                          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                          placeholder={t('spaces.locationNamePlaceholder')}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-3">
+                          {t('spaces.locationIcon')}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowIconSelector(true)}
+                          className="w-full p-5 border border-slate-200/60 rounded-2xl text-left hover:border-sky-300/80 hover:bg-sky-50/80 transition-all duration-300 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="text-3xl">{formData.icon}</div>
+                            <div>
+                              <div className="font-semibold text-slate-800">{t('spaces.selectIcon')}</div>
+                              <div className="text-sm text-slate-600 mt-1">{t('spaces.clickToSelectIcon')}</div>
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                      <div>
+                        <label htmlFor="custom-furniture-description" className="block text-sm font-semibold text-slate-700 mb-3">
+                          {t('spaces.description')} ({t('common.optional')})
+                        </label>
+                        <Textarea
+                          id="custom-furniture-description"
+                          value={formData.description}
+                          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                          rows={3}
+                          placeholder={t('spaces.locationDescriptionPlaceholder')}
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        disabled={loading || !formData.name.trim()}
+                        variant="primary"
+                        size="lg"
+                        className="w-full h-14 text-lg"
+                      >
+                        {loading ? t('common.loading') : `${t('spaces.createLocation')} (${formData.name || 'undefined'})`}
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 图标选择器 */}
+        {showIconSelector && (
+          <IconSelector
+            selectedIcon={formData.icon}
+            onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
+            onClose={() => setShowIconSelector(false)}
+          />
+        )}
+      </div>
     </AuthGuard>
   )
 } 

@@ -25,7 +25,7 @@
 |---------|-----------|------|
 | 前端开发 | Next.js + Tailwind CSS | 现代化 React 框架，响应式设计 |
 | 状态管理 | React useState/useContext | 轻量级状态管理 |
-| 图像识别（AI） | AWS Rekognition | 亚马逊云服务，高精度物体和文字识别 |
+| 图像识别（AI） | OpenAI 视觉模型（如 gpt-4o-mini） | 多物体与文字联合理解 |
 | 数据存储 & Auth | Supabase Database + Auth | 一体化托管，开箱即用 |
 | 后端 API | Next.js API Routes | 简单、无需额外服务器 |
 | 文件上传存储 | Supabase Storage | 文件上传 & 图像CDN 托管 |
@@ -57,10 +57,9 @@ cp env.example .env.local
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# AWS Rekognition 配置
-AWS_ACCESS_KEY_ID=your_aws_access_key_id
-AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
-AWS_REGION=us-east-1
+# OpenAI 视觉配置
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_VISION_MODEL=gpt-4o-mini
 ```
 
 ### 4. 数据库设置
@@ -107,23 +106,20 @@ npm run dev
    - Storage（用于上传照片）
 3. 获取 `SUPABASE_URL` 和 `SUPABASE_ANON_KEY`
 
-### 2. AWS Rekognition
-1. 注册 AWS 账号：[https://aws.amazon.com](https://aws.amazon.com)
-2. 创建 IAM 用户并分配 `AmazonRekognitionFullAccess` 权限
-3. 获取 `AWS_ACCESS_KEY_ID` 和 `AWS_SECRET_ACCESS_KEY`
-4. 设置 `AWS_REGION`（推荐：us-east-1）
+### 2. OpenAI 视觉
+1. 注册 OpenAI 并获取 API Key（`OPENAI_API_KEY`）
+2. 选择模型（默认使用 `gpt-4o-mini`，也可通过 `OPENAI_VISION_MODEL` 指定）
+3. 费用按用量计费
 
-**AWS Rekognition 优势：**
-- 高精度物体识别（1000+ 类别）
-- 文字识别（OCR）功能
-- 无需训练，开箱即用
-- 按使用量付费，成本可控
-- 支持多种图像格式
+**OpenAI 视觉优势：**
+- 视觉 + 文本联合理解，便于从包装文字中解析数量/口味等
+- 通用性强，无需自训练
+- 输出可定制（通过提示词约束 JSON 结构）
 
 ## 🎨 功能特性
 
 - **响应式设计**：支持手机、平板、桌面端
-- **AI 图像识别**：基于 AWS Rekognition 的高精度识别
+- **AI 图像识别**：基于 OpenAI 视觉模型的多模态识别
 - **实时搜索**：支持物品名称搜索
 - **智能筛选**：按过期状态、分类筛选
 - **过期提醒**：自动标识即将过期和已过期物品

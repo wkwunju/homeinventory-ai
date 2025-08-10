@@ -5,36 +5,187 @@
 @layer base {
   html {
     font-family: 'Inter', 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-    background: #f8fafc;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%);
+    /* Typography is standardized via body/h* rules below */
+    /* 移动端优化 */
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-gray-50 text-gray-900 font-sans;
+    @apply bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 text-slate-800 font-sans;
+    font-size: 14px !important; /* Default inline text */
+    /* 移动端滚动优化 */
+    -webkit-overflow-scrolling: touch;
   }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold;
-  }
+  /* Only two font sizes: 20pt for page titles, 14px for everything else */
+  h1 { font-size: 20pt !important; @apply font-bold; }
+  h2, h3, h4, h5, h6 { font-size: 14px !important; @apply font-medium; }
   input, textarea, select {
-    @apply rounded-full bg-gray-100 border-0 px-4 py-2 text-base focus:ring-2 focus:ring-blue-500 focus:bg-white transition;
+    @apply rounded-2xl bg-white/80 backdrop-blur-sm border border-slate-200/60 px-3 py-2.5 focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all duration-300 shadow-sm;
+    font-size: 14px !important;
+    -webkit-appearance: none;
+    appearance: none;
   }
   button {
-    @apply rounded-full font-bold text-base focus:ring-2 focus:ring-blue-500 transition;
+    @apply rounded-2xl font-semibold focus:ring-2 focus:ring-sky-400 transition-all duration-300;
+    font-size: 14px !important; /* 按钮统一字号 */
+    /* 移动端触摸优化 */
+    min-height: 44px; /* 触摸友好的最小高度 */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* 移动端滚动条优化 */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-100/50 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-sky-300/60 rounded-full hover:bg-sky-400/80;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-white rounded-2xl shadow-md p-6;
+    @apply bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-6 border border-white/40 shadow-sky-100/50;
   }
   .main-btn {
-    @apply bg-blue-600 text-white rounded-full w-full py-3 text-lg font-bold shadow-md hover:bg-blue-700 transition;
+    @apply bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white rounded-2xl w-full py-4 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 hover:shadow-sky-200/50;
+    min-height: 56px; /* 移动端触摸友好 */
   }
   .secondary-btn {
-    @apply bg-gray-100 text-gray-900 rounded-full w-full py-3 text-lg font-bold shadow hover:bg-gray-200 transition;
+    @apply bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 rounded-2xl w-full py-4 text-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 border border-slate-200/60;
+    min-height: 56px;
   }
   .icon-btn {
-    @apply flex items-center justify-center rounded-full bg-gray-100 hover:bg-blue-100 w-12 h-12 text-blue-600;
+    @apply flex items-center justify-center rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 hover:from-sky-100 hover:to-blue-100 w-12 h-12 text-sky-600 transition-all duration-300 shadow-sm hover:shadow-md border border-sky-200/40;
+    min-height: 48px;
+    min-width: 48px;
   }
   .input {
-    @apply rounded-full bg-gray-100 border-0 px-4 py-2 text-base focus:ring-2 focus:ring-blue-500 focus:bg-white transition;
+    @apply rounded-2xl bg-white/80 backdrop-blur-sm border border-slate-200/60 px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all duration-300 shadow-sm;
+    min-height: 48px;
+  }
+  
+  /* 移动端特定的组件样式 */
+  .mobile-card {
+    @apply bg-white/95 backdrop-blur-md rounded-3xl p-4 sm:p-6 shadow-2xl border border-white/40 shadow-sky-100/50;
+  }
+  
+  .mobile-button {
+    @apply px-6 py-3 rounded-2xl font-semibold transition-all duration-300;
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  .mobile-input {
+    @apply w-full px-4 py-3 border border-slate-200/60 rounded-2xl focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm shadow-sm;
+    min-height: 48px;
+  }
+  
+  /* 渐变背景 */
+  .gradient-bg {
+    @apply bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50;
+  }
+  
+  /* 毛玻璃效果 */
+  .glass-effect {
+    @apply bg-white/90 backdrop-blur-md border border-white/40 shadow-sky-100/50;
+  }
+  
+  /* 移动端模态框 */
+  .mobile-modal {
+    @apply fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+  }
+  
+  .mobile-modal-content {
+    @apply bg-white/95 backdrop-blur-md rounded-3xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto shadow-2xl border border-white/40;
+  }
+
+  /* 新的现代化组件样式 */
+  .modern-card {
+    @apply bg-white/95 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/40 shadow-sky-100/50 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1;
+  }
+
+  .accent-card {
+    @apply bg-gradient-to-br from-sky-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-sky-200/40;
+  }
+
+  .success-card {
+    @apply bg-gradient-to-br from-emerald-50/80 via-teal-50/80 to-cyan-50/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-emerald-200/40;
+  }
+
+  .warning-card {
+    @apply bg-gradient-to-br from-amber-50/80 via-orange-50/80 to-yellow-50/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-amber-200/40;
+  }
+
+  .modern-button-primary {
+    @apply bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white rounded-2xl px-4 py-2 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 hover:shadow-sky-200/50;
+    font-size: 14px !important;
+  }
+
+  .modern-button-secondary {
+    @apply bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 rounded-2xl px-4 py-2 font-semibold shadow-md hover:shadow-lg transition-all duration-300 border border-slate-200/60 hover:border-slate-300/60;
+    font-size: 14px !important;
+  }
+
+  .modern-button-accent {
+    @apply bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white rounded-2xl px-4 py-2 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 hover:shadow-emerald-200/50;
+    font-size: 14px !important;
+  }
+
+  .modern-button-ghost {
+    @apply bg-white/60 backdrop-blur-sm text-slate-700 rounded-2xl px-4 py-2 font-semibold shadow-sm hover:shadow-md transition-all duration-300 border border-white/40 hover:bg-white/80;
+    font-size: 14px !important;
+  }
+}
+
+/* 移动端响应式优化 */
+@media (max-width: 640px) {
+  .mobile-card {
+    @apply p-4;
+  }
+  
+  .mobile-button {
+    @apply px-4 py-3 text-sm;
+    min-height: 44px;
+  }
+  
+  .mobile-input {
+    @apply px-3 py-2 text-sm;
+    min-height: 44px;
+  }
+  
+  /* 移动端触摸优化 */
+  button, input, select, textarea {
+    @apply touch-manipulation;
+  }
+  
+  /* 移动端间距优化 */
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+  
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+}
+
+/* 深色模式支持（可选） */
+@media (prefers-color-scheme: dark) {
+  .dark-mode {
+    @apply bg-slate-900 text-slate-100;
+  }
+  
+  .dark-mode .card {
+    @apply bg-slate-800/90 border-slate-700;
+  }
+  
+  .dark-mode .mobile-card {
+    @apply bg-slate-800/90 border-slate-700;
   }
 } 
