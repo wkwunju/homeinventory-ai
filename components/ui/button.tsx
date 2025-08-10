@@ -13,8 +13,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           'inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F8A5C2] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
           {
-            'bg-gradient-to-r from-[#FFD39A] via-[#F8A5C2] to-[#CBB7FF] text-white hover:shadow-md hover:brightness-105': variant === 'default',
-            'bg-gradient-to-r from-[#FFD39A] via-[#F8A5C2] to-[#CBB7FF] text-white hover:shadow-md hover:brightness-105': variant === 'primary',
+            // primary defaults to INS gradient as well
+            'bg-gradient-to-r from-[#FFD39A] via-[#F8A5C2] to-[#CBB7FF] text-white hover:shadow-md hover:brightness-105': variant === 'default' || variant === 'primary',
             'bg-gradient-to-r from-[#60A5FA] via-[#3B82F6] to-[#8B5CF6] text-white hover:shadow-lg hover:brightness-110': variant === 'blue',
             'bg-gradient-to-r from-[#34d399] via-[#10b981] to-[#059669] text-white hover:shadow-md hover:brightness-105': variant === 'accent',
             'bg-gradient-to-r from-[#34d399] via-[#10b981] to-[#059669] text-white hover:shadow-md hover:brightness-105': variant === 'success',
