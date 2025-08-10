@@ -261,7 +261,7 @@ export default function SpaceDetailPage() {
   if (loading) {
     return (
       <AuthGuard>
-        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
+        <div className="min-h-screen pb-24">
           <div className="w-full max-w-4xl mx-auto px-4 pt-8">
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mx-auto mb-4"></div>
@@ -276,7 +276,7 @@ export default function SpaceDetailPage() {
   if (!room) {
     return (
       <AuthGuard>
-        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
+        <div className="min-h-screen pb-24">
           <div className="w-full max-w-4xl mx-auto px-4 pt-8">
             <div className="text-center py-12">
               <Home className="w-16 h-16 text-slate-300 mx-auto mb-4" />
@@ -298,7 +298,7 @@ export default function SpaceDetailPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
+      <div className="min-h-screen pb-24">
         <div className="w-full max-w-4xl mx-auto px-4 pt-8">
           {/* 头部 */}
           <div className="flex items-center gap-4 mb-8">

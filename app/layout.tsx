@@ -22,7 +22,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <LanguageProvider>
           <AuthProvider>
-            <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pt-16">
+            <div className="min-h-screen overflow-y-auto pt-16 touch-pan-y">
               <TopBar />
               {children}
             </div>

@@ -160,7 +160,7 @@ export default function ItemDetailPage() {
   if (loading) {
     return (
       <AuthGuard>
-        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24 flex items-center justify-center">
+        <div className="min-h-screen pb-24 flex items-center justify-center">
           <div className="text-lg text-slate-500">加载中...</div>
         </div>
       </AuthGuard>
@@ -170,7 +170,7 @@ export default function ItemDetailPage() {
   if (!item) {
     return (
       <AuthGuard>
-        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24 flex items-center justify-center">
+        <div className="min-h-screen pb-24 flex items-center justify-center">
           <div className="text-lg text-slate-500">物品不存在</div>
         </div>
       </AuthGuard>
@@ -179,7 +179,7 @@ export default function ItemDetailPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
+      <div className="min-h-screen pb-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* 头部 */}
           <div className="flex items-center justify-between mb-8">
@@ -210,33 +210,39 @@ export default function ItemDetailPage() {
                   <h2 className="font-semibold text-slate-800 mb-2 text-[14pt]">基本信息</h2>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">物品名称 *</label>
-                    <Input className="h-10" type="text" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required />
+                    <Input variant="underline" className="h-11" type="text" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} placeholder="物品名称 *" required />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">数量</label>
-                    <Input className="h-10" type="number" min="1" value={formData.quantity} onChange={(e) => handleChange('quantity', parseInt(e.target.value) || 1)} />
+                    <Input
+                      variant="underline"
+                      className="h-11"
+                      type="number"
+                      min="1"
+                      value={(formData.quantity as number | '').toString()}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        handleChange('quantity', v === '' ? '' : (parseInt(v) || ''))
+                      }}
+                      placeholder="数量 *"
+                    />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">分类</label>
-                    <Input className="h-10" type="text" value={formData.category} onChange={(e) => handleChange('category', e.target.value)} placeholder="输入分类" />
+                    <Input variant="underline" className="h-11" type="text" value={formData.category} onChange={(e) => handleChange('category', e.target.value)} placeholder="分类 *" />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">过期日期</label>
-                    <Input className="h-10" type="date" value={formData.expire_date} onChange={(e) => handleChange('expire_date', e.target.value)} />
+                    <div className="text-xs text-slate-500 mb-1">过期日期</div>
+                    <Input variant="underline" className="h-11" type="date" value={formData.expire_date} onChange={(e) => handleChange('expire_date', e.target.value)} placeholder="过期日期" />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">价值（元）</label>
-                    <Input className="h-10" type="number" step="0.01" min="0" value={formData.value ?? ''} onChange={(e) => handleChange('value', e.target.value ? parseFloat(e.target.value) : undefined)} />
+                    <Input variant="underline" className="h-11" type="number" step="0.01" min="0" value={formData.value ?? ''} onChange={(e) => handleChange('value', e.target.value ? parseFloat(e.target.value) : undefined)} placeholder="价值（元）" />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">品牌</label>
-                    <Input className="h-10" type="text" value={formData.brand} onChange={(e) => handleChange('brand', e.target.value)} />
+                    <Input variant="underline" className="h-11" type="text" value={formData.brand} onChange={(e) => handleChange('brand', e.target.value)} placeholder="品牌" />
                   </div>
                 </div>
 
@@ -245,18 +251,16 @@ export default function ItemDetailPage() {
                   <h2 className="font-semibold text-slate-800 mb-2 text-[14pt]">详细信息</h2>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">购入日期</label>
-                    <Input className="h-10" type="date" value={formData.purchase_date} onChange={(e) => handleChange('purchase_date', e.target.value)} />
+                    <Input variant="underline" className="h-11" type="date" value={formData.purchase_date} onChange={(e) => handleChange('purchase_date', e.target.value)} placeholder="购入日期" />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-3">购入来源</label>
                     <select
                       value={formData.purchase_source}
                       onChange={(e) => handleChange('purchase_source', e.target.value)}
-                      className="flex h-10 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-sm shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:border-slate-300/60 hover:shadow-md"
+                      className="flex h-11 w-full bg-transparent border-0 border-b border-[#eaeaea] rounded-none px-0 py-3 text-[14px] focus:outline-none"
                     >
-                      <option value="">选择来源</option>
+                      <option value="">购入来源</option>
                       <option value="淘宝">淘宝</option>
                       <option value="京东">京东</option>
                       <option value="实体店">实体店</option>
@@ -267,13 +271,12 @@ export default function ItemDetailPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-3">物品状态</label>
                     <select
                       value={formData.condition}
                       onChange={(e) => handleChange('condition', e.target.value)}
-                      className="flex h-10 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-sm shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:border-slate-300/60 hover:shadow-md"
+                      className="flex h-11 w-full bg-transparent border-0 border-b border-[#eaeaea] rounded-none px-0 py-3 text-[14px] focus:outline-none"
                     >
-                      <option value="">选择状态</option>
+                      <option value="">物品状态</option>
                       <option value="全新">全新</option>
                       <option value="良好">良好</option>
                       <option value="一般">一般</option>
@@ -283,16 +286,15 @@ export default function ItemDetailPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-3">优先级</label>
                     <select
                       value={formData.priority}
                       onChange={(e) => handleChange('priority', e.target.value)}
-                      className="flex h-10 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-sm shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:border-slate-300/60 hover:shadow-md"
+                      className="flex h-11 w-full bg-transparent border-0 border-b border-[#eaeaea] rounded-none px-0 py-3 text-[14px] focus:outline-none"
                     >
-                      <option value="low">低</option>
-                      <option value="normal">普通</option>
-                      <option value="high">高</option>
-                      <option value="urgent">紧急</option>
+                      <option value="low">优先级 - 低</option>
+                      <option value="normal">优先级 - 普通</option>
+                      <option value="high">优先级 - 高</option>
+                      <option value="urgent">优先级 - 紧急</option>
                     </select>
                   </div>
 
@@ -328,8 +330,7 @@ export default function ItemDetailPage() {
 
                   {/* 备注 */}
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-3">备注</label>
-                    <Textarea value={formData.notes} onChange={(e) => handleChange('notes', e.target.value)} rows={4} placeholder="添加备注信息..." />
+                    <Textarea variant="underline" value={formData.notes} onChange={(e) => handleChange('notes', e.target.value)} rows={4} placeholder="备注" />
                   </div>
                 </div>
               </div>

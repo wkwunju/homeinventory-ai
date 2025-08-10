@@ -33,7 +33,7 @@ export default function SettingsPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
+      <div className="min-h-screen pb-24">
         <div className="w-full max-w-2xl mx-auto px-4 pt-8">
           {/* 头部 */}
           <div className="flex items-center gap-4 mb-8">

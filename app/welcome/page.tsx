@@ -34,7 +34,7 @@ export default function WelcomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50">
+    <div className="min-h-screen">
       <div className="w-full max-w-4xl mx-auto px-4 pt-16 pb-8">
         {/* 头部 */}
         <div className="text-center mb-16">

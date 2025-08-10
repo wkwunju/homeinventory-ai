@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
-import { getPresetRooms } from '@/lib/preset-rooms'
-import { getPresetLocationsByRoomType } from '@/lib/preset-locations'
 import { getDefaultIconByLevel } from '@/lib/icons'
+// preset helpers removed; rely on user's actual spaces
 import AuthGuard from '@/components/auth-guard'
 import { Upload, Camera, Image, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -63,20 +62,8 @@ interface ConvertedItem extends RecognizedItem {
   editedPriority?: string
 }
 
-interface RoomOption {
-  id: string
-  name: string
-  icon: string
-  description: string
-}
-
-interface LocationOption {
-  id: string
-  name: string
-  icon: string
-  description: string
-  roomType: string
-}
+interface RoomOption { id: string; name: string; icon?: string; description?: string }
+interface LocationOption { id: string; name: string; icon?: string; description?: string; parent_id: string }
 
 export default function UploadPage() {
   const { user } = useAuth()
@@ -95,9 +82,7 @@ export default function UploadPage() {
   const [showRoomSelector, setShowRoomSelector] = useState(false)
   const [showLocationSelector, setShowLocationSelector] = useState(false)
   const [currentEditingItemIndex, setCurrentEditingItemIndex] = useState<number | -1>(-1)
-  const [roomOptions, setRoomOptions] = useState<RoomOption[]>([])
-  const [locationOptions, setLocationOptions] = useState<LocationOption[]>([])
-  const [selectedRoomType, setSelectedRoomType] = useState<string>('')
+  const [userSpacesFlat, setUserSpacesFlat] = useState<any[]>([])
   const [showCreateConfirm, setShowCreateConfirm] = useState(false)
   const [pendingCreateData, setPendingCreateData] = useState<any>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -107,24 +92,14 @@ export default function UploadPage() {
 
   const { t, language } = useLanguage()
 
-  // 获取预设房间和位置选项
+  // 从用户空间中构造房间和位置选项
   const getRoomOptions = (): RoomOption[] => {
-    return getPresetRooms(language).map(room => ({
-      id: room.id,
-      name: room.name,
-      icon: room.icon,
-      description: room.description
-    }))
+    return userSpacesFlat.filter(s => s.level === 1).map((s: any) => ({ id: s.id, name: s.name, icon: s.icon, description: s.description }))
   }
 
-  const getLocationOptions = (roomType: string): LocationOption[] => {
-    return getPresetLocationsByRoomType(roomType, language).map(location => ({
-      id: location.id,
-      name: location.name,
-      icon: location.icon,
-      description: location.description,
-      roomType: roomType
-    }))
+  const getLocationOptions = (roomId: string): LocationOption[] => {
+    if (!roomId) return []
+    return userSpacesFlat.filter(s => s.level === 2 && s.parent_id === roomId).map((s: any) => ({ id: s.id, name: s.name, icon: s.icon, description: s.description, parent_id: s.parent_id }))
   }
 
   // 编辑相关函数
@@ -180,7 +155,6 @@ export default function UploadPage() {
         : item
     ))
     setShowRoomSelector(false)
-    setSelectedRoomType(roomName)
   }
 
   const selectLocation = (index: number, locationId: string, locationName: string) => {
@@ -195,6 +169,22 @@ export default function UploadPage() {
     ))
     setShowLocationSelector(false)
   }
+
+  // 拉取用户空间（房间/位置）
+  const fetchUserSpaces = async () => {
+    try {
+      const res = await fetch('/api/spaces')
+      if (res.ok) {
+        const data = await res.json()
+        setUserSpacesFlat(data.flat || [])
+      }
+    } catch (err) {
+      console.error('fetchUserSpaces error:', err)
+    }
+  }
+
+  // 初始化拉取
+  useEffect(() => { fetchUserSpaces() }, [])
 
   // 创建房间和位置
   const createRoom = async (roomData: { name: string; icon: string; description: string }) => {
@@ -262,28 +252,7 @@ export default function UploadPage() {
       const { item, quantity, needsRoomCreation, needsLocationCreation } = pendingCreateData
       let spaceId = item.space_id
 
-      // 创建房间（如果需要）
-      if (needsRoomCreation && item.selectedRoomName) {
-        const roomIcon = getDefaultIconByLevel(1, item.selectedRoomName)
-        const createdRoom = await createRoom({
-          name: item.selectedRoomName,
-          icon: roomIcon,
-          description: `${item.selectedRoomName}房间`
-        })
-        spaceId = createdRoom.id
-      }
-
-      // 创建位置（如果需要）
-      if (needsLocationCreation && item.selectedLocationName && spaceId) {
-        const locationIcon = getDefaultIconByLevel(2, item.selectedLocationName)
-        const createdLocation = await createLocation({
-          name: item.selectedLocationName,
-          icon: locationIcon,
-          description: `${item.selectedLocationName}位置`,
-          parent_id: spaceId
-        })
-        spaceId = createdLocation.id
-      }
+      // 创建房间/位置逻辑已禁用：上传页现在仅允许从已有房间/位置中选择
 
       // 保存物品
       const response = await fetch('/api/items', {
@@ -341,17 +310,36 @@ export default function UploadPage() {
     reader.readAsDataURL(file)
   }
 
+  // 优先使用原生相机捕获（移动端会弹出拍照），桌面端回退到选择文件
+  const handleTakePhoto = () => {
+    const input = fileInputRef.current
+    if (!input) return
+    try {
+      input.setAttribute('capture', 'environment')
+    } catch {}
+    input.click()
+    // 恢复属性，避免影响下次普通选择
+    setTimeout(() => {
+      try { input.removeAttribute('capture') } catch {}
+    }, 1000)
+  }
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      handleFileSelect(file)
-      // 自动开始识别
-      setUploading(true)
-      try {
-        await recognizeImage()
-      } finally {
-        setUploading(false)
-      }
+    if (!file) return
+    console.log('[upload] file selected:', { name: file.name, size: file.size, type: file.type })
+    handleFileSelect(file)
+    // 自动开始识别（直接传入 file，避免状态尚未更新）
+    setUploading(true)
+    try {
+      console.log('[upload] start recognizeImage')
+      await recognizeImage(file)
+      console.log('[upload] recognizeImage done')
+    } catch (err) {
+      console.error('[upload] recognizeImage error:', err)
+      setError(err instanceof Error ? err.message : '请求失败')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -433,22 +421,22 @@ export default function UploadPage() {
         expire_date: expireDate,
         value,
         quantity: item.quantity || 1,
-        // 初始化编辑状态
-        isEditing: false,
-        selectedRoomId: undefined,
-        selectedRoomName: undefined,
-        selectedLocationId: undefined,
-        selectedLocationName: undefined,
-        editedName: item.name,
-        editedCategory: category,
-        editedExpireDate: expireDate || '',
-        editedValue: value?.toString() || '',
-        editedBrand: item.brand || '',
-        editedPurchaseDate: item.purchase_date || '',
-        editedPurchaseSource: item.purchase_source || '',
-        editedNotes: item.notes || '',
-        editedCondition: item.condition || '',
-        editedPriority: item.priority || ''
+        // 保留用户选择与编辑（如果存在）
+        isEditing: (item as any).isEditing ?? false,
+        selectedRoomId: (item as any).selectedRoomId,
+        selectedRoomName: (item as any).selectedRoomName,
+        selectedLocationId: (item as any).selectedLocationId,
+        selectedLocationName: (item as any).selectedLocationName,
+        editedName: (item as any).editedName ?? item.name,
+        editedCategory: (item as any).editedCategory ?? category,
+        editedExpireDate: (item as any).editedExpireDate ?? (expireDate || ''),
+        editedValue: (item as any).editedValue ?? (value?.toString() || ''),
+        editedBrand: (item as any).editedBrand ?? (item.brand || ''),
+        editedPurchaseDate: (item as any).editedPurchaseDate ?? (item.purchase_date || ''),
+        editedPurchaseSource: (item as any).editedPurchaseSource ?? (item.purchase_source || ''),
+        editedNotes: (item as any).editedNotes ?? (item.notes || ''),
+        editedCondition: (item as any).editedCondition ?? (item.condition || ''),
+        editedPriority: (item as any).editedPriority ?? (item.priority || '')
       }
     })
   }
@@ -466,8 +454,10 @@ export default function UploadPage() {
     })
   }
 
-  const recognizeImage = async () => {
-    if (!selectedFile) return
+  const recognizeImage = async (fileParam?: File) => {
+    const fileToUse = fileParam || selectedFile
+    if (!fileToUse) { console.warn('[upload] recognizeImage(): missing file'); return }
+    console.log('[upload] recognizeImage() with file:', { name: fileToUse.name, size: fileToUse.size, type: fileToUse.type })
     setLoading(true)
     setError(null)
 
@@ -542,22 +532,26 @@ export default function UploadPage() {
         setRecognizedItems(mockItems)
       } else {
         const formData = new FormData()
-        formData.append('image', selectedFile)
+        formData.append('image', fileToUse)
 
+        console.log('[upload] POST /api/recognize')
         const response = await fetch('/api/recognize', {
           method: 'POST',
           body: formData,
         })
 
+        console.log('[upload] /api/recognize status:', response.status)
         if (!response.ok) {
           const errorData = await response.json()
           throw new Error(errorData.error || '请求失败')
         }
 
         const data = await response.json()
+        console.log('[upload] /api/recognize items count:', Array.isArray(data.items) ? data.items.length : 'n/a')
         setRecognizedItems(data.items || [])
       }
     } catch (error) {
+      console.error('[upload] recognizeImage failed:', error)
       setError(error instanceof Error ? error.message : '请求失败')
     } finally {
       setLoading(false)
@@ -572,7 +566,7 @@ export default function UploadPage() {
     }
     setUploading(true)
     try {
-      await recognizeImage()
+      await recognizeImage(selectedFile as File)
     } catch (e) {
       setError(e instanceof Error ? e.message : '上传失败')
     } finally {
@@ -594,24 +588,10 @@ export default function UploadPage() {
       let spaceId = itemToSave.space_id
       
       if (itemToSave.selectedRoomId && itemToSave.selectedLocationId) {
-        // 用户已选择房间和位置，检查是否需要创建
-        const needsRoomCreation = !itemToSave.selectedRoomId.startsWith('preset-')
-        const needsLocationCreation = !itemToSave.selectedLocationId.startsWith('preset-')
-        
-        if (needsRoomCreation || needsLocationCreation) {
-          // 显示确认对话框
-          setPendingCreateData({
-            item: itemToSave,
-            quantity,
-            needsRoomCreation,
-            needsLocationCreation
-          })
-          setShowCreateConfirm(true)
-          return
-        }
-        
-        // 使用预设的房间和位置ID
         spaceId = itemToSave.selectedLocationId
+      }
+      if (!spaceId) {
+        throw new Error('请选择房间与位置后再保存')
       }
       
       // 保存物品
@@ -632,7 +612,7 @@ export default function UploadPage() {
           notes: itemToSave.notes,
           condition: itemToSave.condition,
           priority: itemToSave.priority,
-          space_id: spaceId || 'default-space-id',
+          space_id: spaceId,
         }),
       })
 
@@ -663,23 +643,6 @@ export default function UploadPage() {
         
         if (item.selectedRoomId && item.selectedLocationId) {
           // 用户已选择房间和位置，检查是否需要创建
-          const needsRoomCreation = !item.selectedRoomId.startsWith('preset-')
-          const needsLocationCreation = !item.selectedLocationId.startsWith('preset-')
-          
-          if (needsRoomCreation || needsLocationCreation) {
-            // 显示确认对话框
-            setPendingCreateData({
-              item,
-              quantity: item.quantity,
-              needsRoomCreation,
-              needsLocationCreation
-            })
-            setShowCreateConfirm(true)
-            setLoading(false)
-            return
-          }
-          
-          // 使用预设的房间和位置ID
           spaceId = item.selectedLocationId
         }
         
@@ -700,7 +663,7 @@ export default function UploadPage() {
             notes: item.notes,
             condition: item.condition,
             priority: item.priority,
-            space_id: spaceId || 'default-space-id',
+          space_id: spaceId,
           }),
         })
 
@@ -722,7 +685,7 @@ export default function UploadPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
+      <div className="min-h-screen pb-24">
         <div className="w-full max-w-2xl mx-auto px-4 pt-8">
           {/* 头部 */}
           <div className="text-center mb-8">
@@ -754,8 +717,8 @@ export default function UploadPage() {
               
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <Button
-                    onClick={() => fileInputRef.current?.click()} 
-                        variant="primary"
+                        onClick={() => fileInputRef.current?.click()} 
+                        variant="blue"
                         size="lg"
                         className="h-14 px-8 text-lg"
                       >
@@ -763,7 +726,7 @@ export default function UploadPage() {
                         {t('upload.selectFile')}
                       </Button>
                       <Button
-                        onClick={() => setShowCamera(true)}
+                        onClick={handleTakePhoto}
                         variant="outline"
                         size="lg"
                         className="h-14 px-8 text-lg"
@@ -775,48 +738,41 @@ export default function UploadPage() {
                 </div>
               ) : (
                   <div className="space-y-6">
-                    <div className="mx-auto w-24 h-24 bg-gradient-to-br from-emerald-100 to-green-100 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-12 h-12 text-emerald-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-800 mb-2 text-[14pt]">
-                        {t('upload.fileSelected')}
+                    {/* Status */}
+                    {uploading ? (
+                      <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+                      </div>
+                    ) : (
+                      <div className="mx-auto w-24 h-24 bg-gradient-to-br from-emerald-100 to-green-100 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-12 h-12 text-emerald-600" />
+                      </div>
+                    )}
+                    <div className="space-y-3">
+                      <h3 className="font-semibold text-slate-800 mb-1 text-[14pt]">
+                        {uploading ? t('upload.uploading') : t('upload.fileSelected')}
                       </h3>
-                      <p className="text-slate-600 text-[14pt]">{selectedFile.name}</p>
-                  </div>
-                  
+                      {/* Thumbnail preview */}
+                      {preview && (
+                        <img src={preview} alt="预览" className="mx-auto w-40 h-40 object-cover rounded-2xl border border-slate-200/60 shadow-sm" />
+                      )}
+                      <p className="text-slate-600 text-[14pt] truncate text-center">{selectedFile.name}</p>
+                    </div>
+
                     <div className="flex justify-center gap-4">
                       <Button
                         onClick={() => setSelectedFile(null)}
                         variant="outline"
                         size="lg"
                         className="h-14 px-8 text-lg"
+                        disabled={uploading}
                       >
                         <X className="w-5 h-5 mr-2" />
                         {t('upload.changeFile')}
                       </Button>
-                      <Button
-                        onClick={handleUpload}
-                        disabled={uploading}
-                        variant="primary"
-                        size="lg"
-                        className="h-14 px-8 text-lg"
-                      >
-                        {uploading ? (
-                          <>
-                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            {t('upload.uploading')}
-                      </>
-                    ) : (
-                      <>
-                            <Upload className="w-5 h-5 mr-2" />
-                            {t('upload.uploadNow')}
-                      </>
-                    )}
-                      </Button>
-              </div>
-                </div>
-              )}
+                    </div>
+                  </div>
+                )}
             </div>
             </CardContent>
           </Card>
@@ -827,15 +783,17 @@ export default function UploadPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-slate-800 text-[14px] font-semibold">识别结果</CardTitle>
-                  <Button onClick={saveAllToInventory} disabled={loading} variant="primary">全部保存</Button>
+                  <Button onClick={saveAllToInventory} disabled={loading} variant="blue">全部保存</Button>
                   </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {recognizedItems.map((raw, index) => {
                   const item: any = convertedItems[index] || {}
                   const rooms = getRoomOptions()
+                  const selectedRoomId = (raw as any).selectedRoomId || ''
                   const selectedRoomName = (raw as any).selectedRoomName || ''
-                  const locations = selectedRoomName ? getLocationOptions(selectedRoomName) : []
+                  const locations = selectedRoomId ? getLocationOptions(selectedRoomId) : []
+                  const selectedLocationId = (raw as any).selectedLocationId || ''
                   const selectedLocationName = (raw as any).selectedLocationName || ''
                   const expanded = expandedSet.has(index)
                   return (
@@ -843,88 +801,78 @@ export default function UploadPage() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="font-semibold text-slate-800 text-[14px]">{(raw as any).editedName || raw.name}</div>
                         <div className="text-slate-500 text-xs">置信度: {(raw.confidence * 100).toFixed(0)}%</div>
-                      </div>
+                </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">名称</label>
-                          <Input className="h-9 text-sm" value={(raw as any).editedName ?? item.name ?? ''} onChange={(e) => updateEditedField(index, 'name', e.target.value)} />
+                          <Input variant="underline" className="h-9 text-sm" value={(raw as any).editedName ?? item.name ?? ''} onChange={(e) => updateEditedField(index, 'name', e.target.value)} placeholder="名称 *" />
+                </div>
+                              <div>
+                          <Input variant="underline" className="h-9 text-sm" value={(raw as any).editedCategory ?? item.category ?? ''} onChange={(e) => updateEditedField(index, 'category', e.target.value)} placeholder="分类 *" />
+                              </div>
+                              <div>
+                          <Input variant="underline" className="h-9 text-sm" type="number" min="1" value={(raw.quantity as number | '' ) as any} onChange={(e) => updateItemQuantity(index, e.target.value === '' ? 1 : (parseInt(e.target.value) || 1))} placeholder="数量 *" />
+                              </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 mb-1">房间</label>
+                          <select
+                            value={selectedRoomId}
+                            onChange={(e) => {
+                              const roomId = e.target.value
+                              const room = rooms.find(r => r.id === roomId)
+                              if (room) selectRoom(index, room.id, room.name)
+                            }}
+                            className="flex h-9 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-sm shadow-sm hover:border-slate-300/60 hover:shadow-md"
+                          >
+                            <option value="">选择房间</option>
+                            {rooms.map(r => (
+                              <option key={r.id} value={r.id}>{r.name}</option>
+                            ))}
+                          </select>
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">分类</label>
-                          <Input className="h-9 text-sm" value={(raw as any).editedCategory ?? item.category ?? ''} onChange={(e) => updateEditedField(index, 'category', e.target.value)} />
+                          <label className="block text-xs font-semibold text-slate-700 mb-1">位置</label>
+                          <select
+                            value={selectedLocationId}
+                            onChange={(e) => {
+                              const locId = e.target.value
+                              const loc = locations.find(l => l.id === locId)
+                              if (loc) selectLocation(index, loc.id, loc.name)
+                            }}
+                            className="flex h-9 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-sm shadow-sm hover:border-slate-300/60 hover:shadow-md"
+                          >
+                            <option value="">选择位置</option>
+                            {locations.map(l => (
+                              <option key={l.id} value={l.id}>{l.name}</option>
+                            ))}
+                          </select>
                         </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">数量</label>
-                          <Input className="h-9 text-sm" type="number" min="1" value={raw.quantity || 1} onChange={(e) => updateItemQuantity(index, parseInt(e.target.value) || 1)} />
-                        </div>
-                      </div>
+                            </div>
                       <div className={expanded ? 'block' : 'hidden'}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">过期日期</label>
-                            <Input className="h-9 text-sm" type="date" value={(raw as any).editedExpireDate ?? item.expire_date ?? ''} onChange={(e) => updateEditedField(index, 'expireDate', e.target.value)} />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">价值</label>
-                            <Input className="h-9 text-sm" type="number" step="0.01" value={(raw as any).editedValue ?? (item.value ?? '')} onChange={(e) => updateEditedField(index, 'value', e.target.value)} />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">品牌</label>
-                            <Input className="h-9 text-sm" value={(raw as any).editedBrand ?? item.brand ?? ''} onChange={(e) => updateEditedField(index, 'brand', e.target.value)} />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">购买日期</label>
-                            <Input className="h-9 text-sm" type="date" value={(raw as any).editedPurchaseDate ?? item.purchase_date ?? ''} onChange={(e) => updateEditedField(index, 'purchaseDate', e.target.value)} />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">购买来源</label>
-                            <Input className="h-9 text-sm" value={(raw as any).editedPurchaseSource ?? item.purchase_source ?? ''} onChange={(e) => updateEditedField(index, 'purchaseSource', e.target.value)} />
-                          </div>
+                              <div>
+                            <div className="text-xs text-slate-500 mb-1">过期日期</div>
+                            <Input variant="underline" className="h-9 text-sm" type="date" value={(raw as any).editedExpireDate ?? item.expire_date ?? ''} onChange={(e) => updateEditedField(index, 'expireDate', e.target.value)} placeholder="过期日期" />
+                              </div>
+                              <div>
+                            <Input variant="underline" className="h-9 text-sm" type="number" step="0.01" value={(raw as any).editedValue ?? (item.value ?? '')} onChange={(e) => updateEditedField(index, 'value', e.target.value)} placeholder="价值" />
+                              </div>
+                              <div>
+                            <Input variant="underline" className="h-9 text-sm" value={(raw as any).editedBrand ?? item.brand ?? ''} onChange={(e) => updateEditedField(index, 'brand', e.target.value)} placeholder="品牌" />
+                              </div>
+                              <div>
+                                <div className="text-xs text-slate-500 mb-1">购买日期</div>
+                                <Input variant="underline" className="h-9 text-sm" type="date" value={(raw as any).editedPurchaseDate ?? item.purchase_date ?? ''} onChange={(e) => updateEditedField(index, 'purchaseDate', e.target.value)} placeholder="购买日期" />
+                              </div>
+                              <div>
+                            <Input variant="underline" className="h-9 text-sm" value={(raw as any).editedPurchaseSource ?? item.purchase_source ?? ''} onChange={(e) => updateEditedField(index, 'purchaseSource', e.target.value)} placeholder="购买来源" />
+                              </div>
                           <div className="md:col-span-2">
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">备注</label>
-                            <Textarea rows={2} className="text-sm" value={(raw as any).editedNotes ?? item.notes ?? ''} onChange={(e) => updateEditedField(index, 'notes', e.target.value)} />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">房间</label>
-                            <select
-                              value={selectedRoomName}
-                              onChange={(e) => {
-                                const roomName = e.target.value
-                                const room = rooms.find(r => r.name === roomName)
-                                selectRoom(index, room ? `preset-${room.id}` : roomName, roomName)
-                              }}
-                              className="flex h-9 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-sm shadow-sm hover:border-slate-300/60 hover:shadow-md"
-                            >
-                              <option value="">选择房间</option>
-                              {rooms.map(r => (
-                                <option key={r.id} value={r.name}>{r.name}</option>
-                              ))}
-                              <option value="__create_room__">+ 新建房间…</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">位置</label>
-                            <select
-                              value={selectedLocationName}
-                              onChange={(e) => {
-                                const locName = e.target.value
-                                if (locName === '__create_location__') return
-                                const loc = locations.find(l => l.name === locName)
-                                if (loc) selectLocation(index, `preset-${loc.id}`, loc.name)
-                              }}
-                              className="flex h-9 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-sm shadow-sm hover:border-slate-300/60 hover:shadow-md"
-                            >
-                              <option value="">选择位置</option>
-                              {locations.map(l => (
-                                <option key={l.id} value={l.name}>{l.name}</option>
-                              ))}
-                              <option value="__create_location__">+ 新建位置…</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
+                            <Textarea variant="underline" rows={2} className="text-sm" value={(raw as any).editedNotes ?? item.notes ?? ''} onChange={(e) => updateEditedField(index, 'notes', e.target.value)} placeholder="备注" />
+                              </div>
+                              </div>
+                            </div>
                       <div className="mt-4 flex items-center justify-between">
-                        <button
+                          <button
                           type="button"
                           className="modern-button-secondary px-3 py-1.5"
                           onClick={() => {
@@ -936,16 +884,23 @@ export default function UploadPage() {
                           }}
                         >
                           {expanded ? '收起更多' : '展开更多'}
-                        </button>
+                          </button>
                         <Button
-                          onClick={() => saveToInventory(raw as any, (raw.quantity as number) || 1)}
-                          variant="primary"
-                          disabled={!((raw as any).editedName || raw.name) || !((raw as any).editedCategory || item.category) || !(raw.quantity || 1) || !((raw as any).selectedRoomName && (raw as any).selectedLocationName)}
+                          onClick={() => {
+                            console.log('[upload] save click', {
+                              name: (raw as any).editedName || raw.name,
+                              selectedRoomId: (raw as any).selectedRoomId,
+                              selectedLocationId: (raw as any).selectedLocationId,
+                            })
+                            saveToInventory(raw as any, (raw.quantity as number) || 1)
+                          }}
+                          variant="blue"
+                          disabled={!((raw as any).editedName || raw.name) || !((raw as any).editedCategory || item.category) || !(raw.quantity || 1) || !((raw as any).selectedRoomId && (raw as any).selectedLocationId)}
                         >
                           保存
                         </Button>
                       </div>
-                          </div>
+                    </div>
                   )
                 })}
               </CardContent>
@@ -964,35 +919,35 @@ export default function UploadPage() {
               <div className="flex items-start gap-4 p-4 bg-slate-50/80 rounded-2xl">
                 <div className="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <span className="text-sm font-semibold text-sky-700">1</span>
-                              </div>
+                  </div>
                               <div>
                   <h4 className="font-semibold text-slate-800 mb-1">{t('upload.step1Title')}</h4>
                   <p className="text-slate-600 text-sm">{t('upload.step1Description')}</p>
-                              </div>
-                            </div>
-                            
+                </div>
+              </div>
+              
               <div className="flex items-start gap-4 p-4 bg-slate-50/80 rounded-2xl">
                 <div className="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <span className="text-sm font-semibold text-sky-700">2</span>
-                                </div>
+                      </div>
                               <div>
                   <h4 className="font-semibold text-slate-800 mb-1">{t('upload.step2Title')}</h4>
                   <p className="text-slate-600 text-sm">{t('upload.step2Description')}</p>
-                              </div>
-                                </div>
+                      </div>
+                      </div>
 
               <div className="flex items-start gap-4 p-4 bg-slate-50/80 rounded-2xl">
                 <div className="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <span className="text-sm font-semibold text-sky-700">3</span>
-                              </div>
+                    </div>
                               <div>
                   <h4 className="font-semibold text-slate-800 mb-1">{t('upload.step3Title')}</h4>
                   <p className="text-slate-600 text-sm">{t('upload.step3Description')}</p>
-                      </div>
-                    </div>
+              </div>
+            </div>
             </CardContent>
           </Card>
-                      </div>
+          </div>
                       
         {/* 隐藏的文件输入 */}
                                 <input
@@ -1003,29 +958,7 @@ export default function UploadPage() {
           className="hidden"
         />
 
-        {/* 相机模态框 */}
-        {showCamera && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-3xl p-6 max-w-md w-full">
-              <div className="text-center space-y-6">
-                <h3 className="text-xl font-semibold text-slate-800">
-                  {t('upload.cameraNotSupported')}
-                </h3>
-                <p className="text-slate-600">
-                  {t('upload.cameraNotSupportedDescription')}
-                </p>
-                <Button
-                  onClick={() => setShowCamera(false)}
-                  variant="primary"
-                  size="lg"
-                  className="w-full h-14 text-lg"
-                >
-                  {t('common.understand')}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* 相机模态框已移除，使用 capture 属性直接调起相机（移动端） */}
 
         {/* 错误提示 */}
         {error && (
@@ -1033,7 +966,7 @@ export default function UploadPage() {
                 <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-600" />
               <span className="text-red-800 font-medium">{error}</span>
-            </div>
+                </div>
           </div>
         )}
       </div>

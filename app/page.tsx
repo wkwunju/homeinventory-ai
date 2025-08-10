@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
 import { Plus, Search, Package, Grid3X3, List, Sparkles, Home, MapPin, Image as ImageIcon, Edit3 } from 'lucide-react'
 import Link from 'next/link'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface Space {
   id: string
@@ -56,6 +57,7 @@ export default function HomePage() {
   const [allItems, setAllItems] = useState<Item[]>([])
   const [showAddItemModal, setShowAddItemModal] = useState(false)
   const [showAddSpaceModal, setShowAddSpaceModal] = useState(false)
+  const [roomsCount, setRoomsCount] = useState(0)
 
   // 获取空间数据
   const fetchSpaces = async () => {
@@ -66,6 +68,9 @@ export default function HomePage() {
         const spacesData = data.spaces || []
         setSpaces(spacesData)
         setAllSpaces(spacesData) // 保存所有空间数据
+        const flat = data.flat || []
+        const roomNum = Array.isArray(flat) ? flat.filter((s: any) => s.level === 1).length : 0
+        setRoomsCount(roomNum)
       }
     } catch (error) {
       console.error('获取空间失败:', error)
@@ -286,9 +291,29 @@ export default function HomePage() {
     }
   }, [user])
 
+  // 统计信息
+  const { totalItems, totalWorth, expiringSoon, expiredCount } = useMemo(() => {
+    const totalItems = items.length
+    const totalWorth = items.reduce((sum, it) => sum + (typeof it.value === 'number' ? it.value : 0), 0)
+    const now = new Date()
+    const soon = new Date()
+    soon.setDate(now.getDate() + 7)
+    const expiringSoon = items.filter(it => {
+      if (!it.expire_date) return false
+      const d = new Date(it.expire_date)
+      return d <= soon
+    }).length
+    const expiredCount = items.filter(it => {
+      if (!it.expire_date) return false
+      const d = new Date(it.expire_date)
+      return d < now
+    }).length
+    return { totalItems, totalWorth, expiringSoon, expiredCount }
+  }, [items])
+
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
+      <div className="min-h-screen pb-24">
         <div className="w-full max-w-5xl mx-auto px-4 pt-8">
           {/* 头部 */}
           <div className="flex items-center justify-between mb-10">
@@ -301,23 +326,42 @@ export default function HomePage() {
                   家庭储物管理
                 </h1>
               </div>
-              <p className="text-slate-600 text-lg">欢迎回来，{user?.email}</p>
+              {/* 移除头部欢迎语，改为下方概览卡片展示 */}
             </div>
             <div className="h-10" />
           </div>
 
-          {/* 搜索框 */}
-          <div className="mb-10">
-            <div className="relative max-w-lg">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-slate-400" />
-              <input
-                type="text"
-                placeholder={t('home.searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 border border-slate-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent bg-white/90 backdrop-blur-sm shadow-lg shadow-slate-100/50 text-lg"
-              />
-            </div>
+          {/* 概览卡片 */}
+          <div className="mb-8">
+            <Card className="rounded-3xl border border-[#eaeaea] shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
+              <CardContent className="p-6">
+                <div className="space-y-2 text-slate-700 leading-relaxed">
+                  <p>
+                    <span className="text-slate-900 font-semibold">欢迎回来，{user?.email?.split('@')[0] || '朋友'} 👋</span>
+                  </p>
+                  <p>
+                    今天的家当清单：共有 <span className="font-semibold text-slate-900">{totalItems}</span> 件物品，分布在 <span className="font-semibold text-slate-900">{roomsCount}</span> 个房间里，
+                    估算总价值约 <span className="font-semibold text-slate-900">¥{totalWorth.toFixed(2)}</span>。
+                  </p>
+                  <p>
+                    另外，接下来一周有 <span className="font-semibold text-amber-600">{expiringSoon}</span> 件物品可能到期，已过期的有 <span className="font-semibold text-rose-600">{expiredCount}</span> 件，别忘了优先处理哦。
+                  </p>
+                </div>
+                {/* 搜索框移动到概览卡片下方 */}
+                <div className="mt-6">
+                  <div className="relative max-w-lg">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder={t('home.searchPlaceholder')}
+                      value={searchQuery}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 border border-slate-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent bg-white/90 backdrop-blur-sm shadow-lg shadow-slate-100/50 text-lg"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Tab 切换 */}
@@ -327,7 +371,7 @@ export default function HomePage() {
                 onClick={() => handleTabChange('items')}
                 className={`inline-flex items-center gap-3 px-8 py-4 rounded-xl font-semibold transition-all duration-300 ${
                   activeTab === 'items'
-                    ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg shadow-sky-200/50'
+                    ? 'bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] text-white shadow-lg'
                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50/80'
                 }`}
               >
@@ -338,7 +382,7 @@ export default function HomePage() {
                 onClick={() => handleTabChange('spaces')}
                 className={`inline-flex items-center gap-3 px-8 py-4 rounded-xl font-semibold transition-all duration-300 ${
                   activeTab === 'spaces'
-                    ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg shadow-sky-200/50'
+                    ? 'bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] text-white shadow-lg'
                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50/80'
                 }`}
               >

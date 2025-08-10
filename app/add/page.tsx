@@ -24,7 +24,7 @@ interface Space {
 interface ItemForm {
   id: string
   name: string
-  quantity: number
+  quantity: number | ''
   category: string
   expire_date: string
   value?: number
@@ -187,7 +187,7 @@ export default function AddItemPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-emerald-50 pb-24">
+      <div className="min-h-screen pb-24">
         <div className="w-full max-w-4xl mx-auto px-4 pt-8">
           {/* 头部 */}
           <div className="flex items-center gap-4 mb-8">
@@ -397,119 +397,107 @@ export default function AddItemPage() {
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* 物品名称 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.itemName')} *
-                                  </label>
                                   <Input
+                                    variant="underline"
                                     type="text"
                                     value={item.name}
                                     onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                                    placeholder={t('add.itemNamePlaceholder')}
+                                    placeholder={`${t('add.itemName')} *`}
                                     required
                                   />
                                 </div>
 
                                 {/* 数量 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.quantity')}
-                                  </label>
                                   <Input
+                                    variant="underline"
                                     type="number"
                                     min="1"
-                                    value={item.quantity}
-                                    onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 1)}
+                                    value={item.quantity === '' ? '' : item.quantity}
+                                    onChange={(e) => {
+                                      const v = e.target.value
+                                      updateItem(item.id, 'quantity', v === '' ? '' : (parseInt(v) || ''))
+                                    }}
+                                    placeholder={`${t('add.quantity')} *`}
                                   />
                                 </div>
 
                                 {/* 分类 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.category')}
-                                  </label>
                                   <Input
+                                    variant="underline"
                                     type="text"
                                     value={item.category || ''}
                                     onChange={(e) => updateItem(item.id, 'category', e.target.value)}
-                                    placeholder={t('add.categoryPlaceholder')}
+                                    placeholder={`${t('add.category')} *`}
                                   />
                                 </div>
 
                                 {/* 过期日期 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.expireDate')}
-                                  </label>
+                                  <div className="text-xs text-slate-500 mb-1">{t('add.expireDate')}</div>
                                   <Input
+                                    variant="underline"
                                     type="date"
                                     value={item.expire_date || ''}
                                     onChange={(e) => updateItem(item.id, 'expire_date', e.target.value)}
+                                    placeholder={t('add.expireDate')}
                                   />
                                 </div>
 
                                 {/* 价值 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.value')}
-                                  </label>
                                   <Input
+                                    variant="underline"
                                     type="number"
                                     step="0.01"
                                     value={item.value || ''}
                                     onChange={(e) => updateItem(item.id, 'value', e.target.value ? parseFloat(e.target.value) : undefined)}
-                                    placeholder={t('add.valuePlaceholder')}
+                                    placeholder={t('add.value')}
                                   />
                                 </div>
 
                                 {/* 品牌 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.brand')}
-                                  </label>
                                   <Input
+                                    variant="underline"
                                     type="text"
                                     value={item.brand || ''}
                                     onChange={(e) => updateItem(item.id, 'brand', e.target.value)}
-                                    placeholder={t('add.brandPlaceholder')}
+                                    placeholder={t('add.brand')}
                                   />
                                 </div>
 
                                 {/* 购买日期 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.purchaseDate')}
-                                  </label>
                                   <Input
+                                    variant="underline"
                                     type="date"
                                     value={item.purchase_date || ''}
                                     onChange={(e) => updateItem(item.id, 'purchase_date', e.target.value)}
+                                    placeholder={t('add.purchaseDate')}
                                   />
                                 </div>
 
                                 {/* 购买来源 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.purchaseSource')}
-                                  </label>
                                   <Input
+                                    variant="underline"
                                     type="text"
                                     value={item.purchase_source || ''}
                                     onChange={(e) => updateItem(item.id, 'purchase_source', e.target.value)}
-                                    placeholder={t('add.purchaseSourcePlaceholder')}
+                                    placeholder={t('add.purchaseSource')}
                                   />
                                 </div>
 
                                 {/* 状态 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.condition')}
-                                  </label>
                                   <select
                                     value={item.condition || ''}
                                     onChange={(e) => updateItem(item.id, 'condition', e.target.value)}
-                                    className="flex h-12 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-4 py-3 text-base shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:border-slate-300/60 hover:shadow-md"
+                                    className="flex h-11 w-full bg-transparent border-0 border-b border-[#eaeaea] rounded-none px-0 py-3 text-[14px] focus:outline-none"
                                   >
-                                    <option value="">{t('add.selectCondition')}</option>
+                                    <option value="">{t('add.condition')}</option>
                                     <option value="new">{t('add.conditionNew')}</option>
                                     <option value="like-new">{t('add.conditionLikeNew')}</option>
                                     <option value="good">{t('add.conditionGood')}</option>
@@ -520,31 +508,26 @@ export default function AddItemPage() {
 
                                 {/* 优先级 */}
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.priority')}
-                                  </label>
                                   <select
                                     value={item.priority || 'normal'}
                                     onChange={(e) => updateItem(item.id, 'priority', e.target.value)}
-                                    className="flex h-12 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-4 py-3 text-base shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:border-slate-300/60 hover:shadow-md"
+                                    className="flex h-11 w-full bg-transparent border-0 border-b border-[#eaeaea] rounded-none px-0 py-3 text-[14px] focus:outline-none"
                                   >
-                                    <option value="low">{t('add.priorityLow')}</option>
-                                    <option value="normal">{t('add.priorityNormal')}</option>
-                                    <option value="high">{t('add.priorityHigh')}</option>
-                                    <option value="urgent">{t('add.priorityUrgent')}</option>
+                                    <option value="low">{t('add.priority')} - {t('add.priorityLow')}</option>
+                                    <option value="normal">{t('add.priority')} - {t('add.priorityNormal')}</option>
+                                    <option value="high">{t('add.priority')} - {t('add.priorityHigh')}</option>
+                                    <option value="urgent">{t('add.priority')} - {t('add.priorityUrgent')}</option>
                                   </select>
                                 </div>
 
                                 {/* 备注 */}
                                 <div className="md:col-span-2">
-                                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                    {t('add.notes')}
-                                  </label>
                                   <Textarea
+                                    variant="underline"
                                     value={item.notes || ''}
                                     onChange={(e) => updateItem(item.id, 'notes', e.target.value)}
                                     rows={3}
-                                    placeholder={t('add.notesPlaceholder')}
+                                    placeholder={t('add.notes')}
                                   />
                                 </div>
                               </div>
