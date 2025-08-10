@@ -16,8 +16,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             // primary defaults to INS gradient as well
             'bg-gradient-to-r from-[#FFD39A] via-[#F8A5C2] to-[#CBB7FF] text-white hover:shadow-md hover:brightness-105': variant === 'default' || variant === 'primary',
             'bg-gradient-to-r from-[#60A5FA] via-[#3B82F6] to-[#8B5CF6] text-white hover:shadow-lg hover:brightness-110': variant === 'blue',
-            'bg-gradient-to-r from-[#34d399] via-[#10b981] to-[#059669] text-white hover:shadow-md hover:brightness-105': variant === 'accent',
-            'bg-gradient-to-r from-[#34d399] via-[#10b981] to-[#059669] text-white hover:shadow-md hover:brightness-105': variant === 'success',
+            'bg-gradient-to-r from-[#34d399] via-[#10b981] to-[#059669] text-white hover:shadow-md hover:brightness-105': variant === 'accent' || variant === 'success',
             'bg-gradient-to-r from-[#f59e0b] via-[#f97316] to-[#f43f5e] text-white hover:shadow-md hover:brightness-105': variant === 'warning',
             'bg-gradient-to-r from-red-500 via-pink-500 to-rose-500 text-white hover:shadow-md hover:brightness-105': variant === 'destructive',
             'border border-[#eaeaea] bg-white hover:bg-[#fafafa] text-slate-800 shadow-sm': variant === 'outline',
