@@ -105,11 +105,11 @@
   
   /* 移动端模态框 */
   .mobile-modal {
-    @apply fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+    @apply fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-3;
   }
   
   .mobile-modal-content {
-    @apply bg-white/95 backdrop-blur-md rounded-3xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto shadow-2xl border border-white/40;
+    @apply bg-white/95 backdrop-blur-md rounded-2xl p-4 w-full max-w-sm max-h-[78vh] overflow-y-auto shadow-xl border border-slate-200/60;
   }
 
   /* 新的现代化组件样式 */

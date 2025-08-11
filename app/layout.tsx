@@ -24,7 +24,9 @@ export default function RootLayout({
           <AuthProvider>
             <div className="min-h-screen overflow-y-auto pt-16 touch-pan-y">
               <TopBar />
-              {children}
+              <main className="px-5 sm:px-6">
+                {children}
+              </main>
             </div>
           </AuthProvider>
         </LanguageProvider>

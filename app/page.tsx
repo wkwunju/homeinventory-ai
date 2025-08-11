@@ -578,8 +578,8 @@ export default function HomePage() {
       )}
 
       {showAddSpaceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowAddSpaceModal(false)}>
-          <div className="w-full max-w-lg bg-white rounded-2xl border border-slate-200/60 shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="mobile-modal" onClick={() => setShowAddSpaceModal(false)}>
+          <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-xl font-semibold text-slate-800 mb-4">空间管理</h3>
             <p className="text-slate-600 mb-6">前往空间管理页面添加房间与位置</p>
             <div className="flex gap-3 justify-end">
