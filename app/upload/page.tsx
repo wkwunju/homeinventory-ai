@@ -7,6 +7,7 @@ import { useLanguage } from '@/lib/i18n'
 import { getDefaultIconByLevel } from '@/lib/icons'
 // preset helpers removed; rely on user's actual spaces
 import AuthGuard from '@/components/auth-guard'
+import { useItemsCache } from '@/lib/items-cache'
 import { Upload, Camera, Image, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -67,6 +68,7 @@ interface LocationOption { id: string; name: string; icon?: string; description?
 
 export default function UploadPage() {
   const { user } = useAuth()
+  const { addItem } = useItemsCache()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [recognizedItems, setRecognizedItems] = useState<RecognizedItem[]>([])
@@ -620,7 +622,8 @@ export default function UploadPage() {
         const errorData = await response.json()
         throw new Error(errorData.error || '保存失败')
       }
-
+      const saved = await response.json()
+      if (saved?.item) addItem(saved.item)
       setRecognizedItems(prev => prev.filter(i => i.name !== item.name))
     } catch (error) {
       setError(error instanceof Error ? error.message : '保存失败')
@@ -671,6 +674,8 @@ export default function UploadPage() {
           const errorData = await response.json()
           throw new Error(errorData.error || '保存失败')
         }
+        const saved = await response.json()
+        if (saved?.item) addItem(saved.item)
       }
       
       setRecognizedItems([])
@@ -779,10 +784,10 @@ export default function UploadPage() {
 
           {/* 识别结果 */}
           {convertedItems.length > 0 && (
-            <Card className="mb-6 text-[14px]">
+            <Card className="mb-6 text-[14pt]">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-slate-800 text-[14px] font-semibold">识别结果</CardTitle>
+                  <CardTitle className="text-slate-800 text-[14pt] font-semibold">识别结果</CardTitle>
                   <Button onClick={saveAllToInventory} disabled={loading} variant="blue">全部保存</Button>
                   </div>
               </CardHeader>
@@ -797,23 +802,26 @@ export default function UploadPage() {
                   const selectedLocationName = (raw as any).selectedLocationName || ''
                   const expanded = expandedSet.has(index)
                   return (
-                    <div key={index} className="p-4 border border-slate-200/60 rounded-2xl bg-white/80 backdrop-blur-sm">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="font-semibold text-slate-800 text-[14px]">{(raw as any).editedName || raw.name}</div>
-                        <div className="text-slate-500 text-xs">置信度: {(raw.confidence * 100).toFixed(0)}%</div>
-                </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    <div key={index} className="p-5 border border-slate-200/60 rounded-2xl bg-white/90 backdrop-blur-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="font-semibold text-slate-800 text-[14pt]">{(raw as any).editedName || raw.name}</div>
+                        <div className="text-slate-600 text-[14pt]">置信度: {(raw.confidence * 100).toFixed(0)}%</div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-3">
                         <div>
-                          <Input variant="underline" className="h-9 text-sm" value={(raw as any).editedName ?? item.name ?? ''} onChange={(e) => updateEditedField(index, 'name', e.target.value)} placeholder="名称 *" />
-                </div>
-                              <div>
-                          <Input variant="underline" className="h-9 text-sm" value={(raw as any).editedCategory ?? item.category ?? ''} onChange={(e) => updateEditedField(index, 'category', e.target.value)} placeholder="分类 *" />
-                              </div>
-                              <div>
-                          <Input variant="underline" className="h-9 text-sm" type="number" min="1" value={(raw.quantity as number | '' ) as any} onChange={(e) => updateItemQuantity(index, e.target.value === '' ? 1 : (parseInt(e.target.value) || 1))} placeholder="数量 *" />
-                              </div>
+                          <label className="block text-[14pt] text-slate-700 mb-1">名称</label>
+                          <Input variant="underline" className="h-11 text-[14pt]" value={(raw as any).editedName ?? item.name ?? ''} onChange={(e) => updateEditedField(index, 'name', e.target.value)} placeholder="名称 *" />
+                        </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">房间</label>
+                          <label className="block text-[14pt] text-slate-700 mb-1">分类</label>
+                          <Input variant="underline" className="h-11 text-[14pt]" value={(raw as any).editedCategory ?? item.category ?? ''} onChange={(e) => updateEditedField(index, 'category', e.target.value)} placeholder="分类 *" />
+                        </div>
+                        <div>
+                          <label className="block text-[14pt] text-slate-700 mb-1">数量</label>
+                          <Input variant="underline" className="h-11 text-[14pt]" type="number" min="1" value={(raw.quantity as number | '' ) as any} onChange={(e) => updateItemQuantity(index, e.target.value === '' ? 1 : (parseInt(e.target.value) || 1))} placeholder="数量 *" />
+                        </div>
+                        <div>
+                          <label className="block text-[14pt] text-slate-700 mb-1">房间</label>
                           <select
                             value={selectedRoomId}
                             onChange={(e) => {
@@ -821,7 +829,7 @@ export default function UploadPage() {
                               const room = rooms.find(r => r.id === roomId)
                               if (room) selectRoom(index, room.id, room.name)
                             }}
-                            className="flex h-9 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-sm shadow-sm hover:border-slate-300/60 hover:shadow-md"
+                            className="flex h-11 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-[14pt] shadow-sm hover:border-slate-300/60 hover:shadow-md"
                           >
                             <option value="">选择房间</option>
                             {rooms.map(r => (
@@ -830,7 +838,7 @@ export default function UploadPage() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">位置</label>
+                          <label className="block text-[14pt] text-slate-700 mb-1">位置</label>
                           <select
                             value={selectedLocationId}
                             onChange={(e) => {
@@ -838,7 +846,7 @@ export default function UploadPage() {
                               const loc = locations.find(l => l.id === locId)
                               if (loc) selectLocation(index, loc.id, loc.name)
                             }}
-                            className="flex h-9 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-sm shadow-sm hover:border-slate-300/60 hover:shadow-md"
+                            className="flex h-11 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-[14pt] shadow-sm hover:border-slate-300/60 hover:shadow-md"
                           >
                             <option value="">选择位置</option>
                             {locations.map(l => (
@@ -846,35 +854,39 @@ export default function UploadPage() {
                             ))}
                           </select>
                         </div>
-                            </div>
+                      </div>
                       <div className={expanded ? 'block' : 'hidden'}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              <div>
-                            <div className="text-xs text-slate-500 mb-1">过期日期</div>
-                            <Input variant="underline" className="h-9 text-sm" type="date" value={(raw as any).editedExpireDate ?? item.expire_date ?? ''} onChange={(e) => updateEditedField(index, 'expireDate', e.target.value)} placeholder="过期日期" />
-                              </div>
-                              <div>
-                            <Input variant="underline" className="h-9 text-sm" type="number" step="0.01" value={(raw as any).editedValue ?? (item.value ?? '')} onChange={(e) => updateEditedField(index, 'value', e.target.value)} placeholder="价值" />
-                              </div>
-                              <div>
-                            <Input variant="underline" className="h-9 text-sm" value={(raw as any).editedBrand ?? item.brand ?? ''} onChange={(e) => updateEditedField(index, 'brand', e.target.value)} placeholder="品牌" />
-                              </div>
-                              <div>
-                                <div className="text-xs text-slate-500 mb-1">购买日期</div>
-                                <Input variant="underline" className="h-9 text-sm" type="date" value={(raw as any).editedPurchaseDate ?? item.purchase_date ?? ''} onChange={(e) => updateEditedField(index, 'purchaseDate', e.target.value)} placeholder="购买日期" />
-                              </div>
-                              <div>
-                            <Input variant="underline" className="h-9 text-sm" value={(raw as any).editedPurchaseSource ?? item.purchase_source ?? ''} onChange={(e) => updateEditedField(index, 'purchaseSource', e.target.value)} placeholder="购买来源" />
-                              </div>
-                          <div className="md:col-span-2">
-                            <Textarea variant="underline" rows={2} className="text-sm" value={(raw as any).editedNotes ?? item.notes ?? ''} onChange={(e) => updateEditedField(index, 'notes', e.target.value)} placeholder="备注" />
-                              </div>
-                              </div>
-                            </div>
-                      <div className="mt-4 flex items-center justify-between">
-                          <button
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-[14pt] text-slate-700 mb-1">过期日期</label>
+                            <Input variant="underline" className="h-11 text-[14pt]" type="date" value={(raw as any).editedExpireDate ?? item.expire_date ?? ''} onChange={(e) => updateEditedField(index, 'expireDate', e.target.value)} placeholder="过期日期" />
+                          </div>
+                          <div>
+                            <label className="block text-[14pt] text-slate-700 mb-1">价值</label>
+                            <Input variant="underline" className="h-11 text-[14pt]" type="number" step="0.01" value={(raw as any).editedValue ?? (item.value ?? '')} onChange={(e) => updateEditedField(index, 'value', e.target.value)} placeholder="价值" />
+                          </div>
+                          <div>
+                            <label className="block text-[14pt] text-slate-700 mb-1">品牌</label>
+                            <Input variant="underline" className="h-11 text-[14pt]" value={(raw as any).editedBrand ?? item.brand ?? ''} onChange={(e) => updateEditedField(index, 'brand', e.target.value)} placeholder="品牌" />
+                          </div>
+                          <div>
+                            <label className="block text-[14pt] text-slate-700 mb-1">购买日期</label>
+                            <Input variant="underline" className="h-11 text-[14pt]" type="date" value={(raw as any).editedPurchaseDate ?? item.purchase_date ?? ''} onChange={(e) => updateEditedField(index, 'purchaseDate', e.target.value)} placeholder="购买日期" />
+                          </div>
+                          <div>
+                            <label className="block text-[14pt] text-slate-700 mb-1">购买来源</label>
+                            <Input variant="underline" className="h-11 text-[14pt]" value={(raw as any).editedPurchaseSource ?? item.purchase_source ?? ''} onChange={(e) => updateEditedField(index, 'purchaseSource', e.target.value)} placeholder="购买来源" />
+                          </div>
+                          <div className="md:col-span-2 lg:col-span-3">
+                            <label className="block text-[14pt] text-slate-700 mb-1">备注</label>
+                            <Textarea variant="underline" rows={3} className="text-[14pt]" value={(raw as any).editedNotes ?? item.notes ?? ''} onChange={(e) => updateEditedField(index, 'notes', e.target.value)} placeholder="备注" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-5 flex items-center justify-between">
+                        <button
                           type="button"
-                          className="modern-button-secondary px-3 py-1.5"
+                          className="modern-button-secondary px-4 py-2"
                           onClick={() => {
                             setExpandedSet((prev: Set<number>) => {
                               const n = new Set(prev)
@@ -884,14 +896,9 @@ export default function UploadPage() {
                           }}
                         >
                           {expanded ? '收起更多' : '展开更多'}
-                          </button>
+                        </button>
                         <Button
                           onClick={() => {
-                            console.log('[upload] save click', {
-                              name: (raw as any).editedName || raw.name,
-                              selectedRoomId: (raw as any).selectedRoomId,
-                              selectedLocationId: (raw as any).selectedLocationId,
-                            })
                             saveToInventory(raw as any, (raw.quantity as number) || 1)
                           }}
                           variant="blue"

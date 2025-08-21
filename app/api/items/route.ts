@@ -164,7 +164,14 @@ export async function POST(request: NextRequest) {
         priority,
         photo_url
       })
-      .select()
+      .select(`
+        *,
+        spaces (
+          id,
+          name,
+          level
+        )
+      `)
       .single()
 
     if (error) {

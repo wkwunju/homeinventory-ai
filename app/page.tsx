@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/lib/auth-context'
+import { useItemsCache } from '@/lib/items-cache'
 import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
-import { Plus, Search, Package, Grid3X3, List, Sparkles, Home, MapPin, Image as ImageIcon, Edit3 } from 'lucide-react'
+import { Plus, Search, Package, Grid3X3, List, Sparkles, Home, MapPin, Image as ImageIcon, Edit3, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -47,6 +48,7 @@ export default function HomePage() {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<'spaces' | 'items'>('items')
   const [spaces, setSpaces] = useState<Space[]>([])
+  const { items: cachedItems, loaded, refresh } = useItemsCache()
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -79,21 +81,25 @@ export default function HomePage() {
 
   // 获取物品数据
   const fetchItems = async (spaceId?: string) => {
-    try {
-      const params = new URLSearchParams()
-      if (spaceId) params.append('space_id', spaceId)
-
-      const response = await fetch(`/api/items?${params}`)
-      if (response.ok) {
-        const data = await response.json()
-        const itemsData = data.items || []
-        setItems(itemsData)
-        if (!spaceId) {
-          setAllItems(itemsData) // 保存所有物品数据
+    // Use cache as primary source; refresh in background
+    if (!spaceId) {
+      setItems(cachedItems as unknown as Item[])
+      setAllItems(cachedItems as unknown as Item[])
+      // background refresh to keep it up to date
+      refresh().catch(() => {})
+    } else {
+      try {
+        const params = new URLSearchParams()
+        params.append('space_id', spaceId)
+        const response = await fetch(`/api/items?${params}`)
+        if (response.ok) {
+          const data = await response.json()
+          const itemsData = data.items || []
+          setItems(itemsData)
         }
+      } catch (error) {
+        console.error('获取物品失败:', error)
       }
-    } catch (error) {
-      console.error('获取物品失败:', error)
     }
   }
 
@@ -113,7 +119,7 @@ export default function HomePage() {
       const filteredItems = allItems.filter(item => 
         item.name.toLowerCase().includes(query.toLowerCase()) ||
         item.category?.toLowerCase().includes(query.toLowerCase()) ||
-        item.spaces.name.toLowerCase().includes(query.toLowerCase())
+        (item.spaces?.name?.toLowerCase() || '').includes(query.toLowerCase())
       )
       
       setSearchResults({
@@ -228,7 +234,7 @@ export default function HomePage() {
     }
 
     return (
-      <div className="grid gap-5 max-h-[60vh] overflow-y-auto pr-1">
+      <div className="grid gap-5">
         {items.map(item => (
           <div key={item.id} className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white/90 backdrop-blur-sm p-4 transition-all duration-300 hover:shadow-xl hover:border-sky-300/60 hover:-translate-y-1 shadow-lg shadow-slate-100/50">
             <div className="flex items-center justify-between">
@@ -242,7 +248,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-emerald-500" />
-                      <span className="whitespace-normal">位置：{item.spaces.name}</span>
+                      <span className="whitespace-normal">位置：{item.spaces?.name || '未指定'}</span>
                     </div>
                     {item.category && (
                       <div>
@@ -279,10 +285,8 @@ export default function HomePage() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true)
-      await Promise.all([
-        fetchSpaces(),
-        fetchItems(), // 获取所有物品数据
-      ])
+      await fetchSpaces()
+      await fetchItems() // 从缓存读取并后台刷新
       setLoading(false)
     }
 
@@ -290,6 +294,17 @@ export default function HomePage() {
       loadData()
     }
   }, [user])
+
+  // 当缓存变更时，仅同步本地展示数据，不触发重新加载
+  useEffect(() => {
+    if (!selectedSpaceId) {
+      setAllItems(cachedItems as unknown as Item[])
+      setItems(cachedItems as unknown as Item[])
+    } else {
+      const filtered = (cachedItems as unknown as Item[]).filter(it => it.space_id === selectedSpaceId)
+      setItems(filtered)
+    }
+  }, [cachedItems, selectedSpaceId])
 
   // 统计信息
   const { totalItems, totalWorth, expiringSoon, expiredCount } = useMemo(() => {
@@ -310,6 +325,131 @@ export default function HomePage() {
     }).length
     return { totalItems, totalWorth, expiringSoon, expiredCount }
   }, [items])
+
+  const [showShareModal, setShowShareModal] = useState(false)
+
+  const handleShareSummary = async () => {
+    try {
+      const width = 720
+      const height = 900
+      const scale = 2
+      const canvas = document.createElement('canvas')
+      canvas.width = width * scale
+      canvas.height = height * scale
+      const ctx = canvas.getContext('2d')!
+      ctx.scale(scale, scale)
+
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, width, height)
+      grad.addColorStop(0, '#E0F2FE') // sky-100
+      grad.addColorStop(1, '#EDE9FE') // violet-100
+      ctx.fillStyle = grad
+      ctx.fillRect(0, 0, width, height)
+
+      // Card
+      ctx.fillStyle = 'rgba(255,255,255,0.9)'
+      ctx.strokeStyle = 'rgba(226,232,240,0.9)'
+      ctx.lineWidth = 2
+      const pad = 28
+      const cardX = pad
+      const cardY = pad
+      const cardW = width - pad * 2
+      const cardH = height - pad * 2
+      ctx.fillRect(cardX, cardY, cardW, cardH)
+      ctx.strokeRect(cardX, cardY, cardW, cardH)
+
+      // Title
+      ctx.fillStyle = '#0f172a' // slate-900
+      ctx.font = 'bold 28px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
+      ctx.fillText('我的家庭清单', cardX + 24, cardY + 56)
+
+      // Stats
+      ctx.font = '18px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
+      const worth = `¥${totalWorth.toFixed(2)}`
+      const itemsText = `共有 ${totalItems} 件物品`
+      const worthText = `估算总价值 ${worth}`
+      const callToAction = '来看看你的吧 → HomeInventory AI'
+      ctx.fillStyle = '#334155' // slate-700
+      ctx.fillText(itemsText, cardX + 24, cardY + 110)
+      ctx.fillText(worthText, cardX + 24, cardY + 150)
+
+      // Decorative circles
+      ctx.fillStyle = '#93C5FD'
+      ctx.beginPath()
+      ctx.arc(width - 120, cardY + 80, 28, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.fillStyle = '#C4B5FD'
+      ctx.beginPath()
+      ctx.arc(width - 70, cardY + 130, 18, 0, Math.PI * 2)
+      ctx.fill()
+
+      // CTA pill
+      const pillX = cardX + 24
+      const pillY = cardY + cardH - 90
+      const pillW = cardW - 48
+      const pillH = 56
+      ctx.fillStyle = '#0ea5e9' // sky-600
+      ctx.beginPath()
+      ctx.moveTo(pillX + 16, pillY)
+      ctx.lineTo(pillX + pillW - 16, pillY)
+      ctx.quadraticCurveTo(pillX + pillW, pillY, pillX + pillW, pillY + 16)
+      ctx.lineTo(pillX + pillW, pillY + pillH - 16)
+      ctx.quadraticCurveTo(pillX + pillW, pillY + pillH, pillX + pillW - 16, pillY + pillH)
+      ctx.lineTo(pillX + 16, pillY + pillH)
+      ctx.quadraticCurveTo(pillX, pillY + pillH, pillX, pillY + pillH - 16)
+      ctx.lineTo(pillX, pillY + 16)
+      ctx.quadraticCurveTo(pillX, pillY, pillX + 16, pillY)
+      ctx.fill()
+
+      ctx.fillStyle = '#ffffff'
+      ctx.font = 'bold 20px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
+      ctx.textAlign = 'center'
+      ctx.fillText(callToAction, pillX + pillW / 2, pillY + 36)
+      ctx.textAlign = 'start'
+
+      // Footer
+      ctx.fillStyle = '#64748b' // slate-500
+      ctx.font = '16px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
+      ctx.fillText('分享自 HomeInventory AI', cardX + 24, cardY + cardH - 24)
+
+      canvas.toBlob((blob) => {
+        if (!blob) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `homeinventory-share-${Date.now()}.png`
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        URL.revokeObjectURL(url)
+      }, 'image/png')
+    } catch (e) {
+      console.error('分享图片生成失败', e)
+    }
+  }
+
+  const handleOpenShareModal = () => {
+    setShowShareModal(true)
+  }
+
+  const handleShareWebsite = async () => {
+    try {
+      const url = typeof window !== 'undefined' ? window.location.origin + '/' : ''
+      const text = `我在 HomeInventory AI 有 ${totalItems} 件物品，总价值约 ¥${totalWorth.toFixed(2)}。来看看你的吧！`
+      const title = '我的家庭清单'
+      if (navigator?.share) {
+        await navigator.share({ title, text, url })
+      } else if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(`${text} ${url}`)
+        alert('分享内容已复制到剪贴板')
+      } else {
+        window.open(url, '_blank')
+      }
+      setShowShareModal(false)
+    } catch (e) {
+      console.error('网站分享失败', e)
+    }
+  }
 
   return (
     <AuthGuard>
@@ -348,8 +488,8 @@ export default function HomePage() {
                   </p>
                 </div>
                 {/* 搜索框移动到概览卡片下方 */}
-                <div className="mt-6">
-                  <div className="relative max-w-lg">
+                <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
+                  <div className="relative max-w-lg flex-1 min-w-[260px]">
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-slate-400" />
                     <input
                       type="text"
@@ -359,6 +499,14 @@ export default function HomePage() {
                       className="w-full pl-12 pr-4 py-4 border border-slate-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent bg-white/90 backdrop-blur-sm shadow-lg shadow-slate-100/50 text-lg"
                     />
                   </div>
+                  <button
+                    onClick={handleOpenShareModal}
+                    className="modern-button-primary inline-flex items-center gap-2 px-5 py-3"
+                    aria-label="生成分享图"
+                  >
+                    <Share2 className="w-5 h-5" />
+                    分享
+                  </button>
                 </div>
               </CardContent>
             </Card>
@@ -455,7 +603,7 @@ export default function HomePage() {
                                       </div>
                                       <div className="flex items-center gap-2">
                                         <MapPin className="h-4 w-4 text-emerald-500" />
-                                        <span className="whitespace-normal">位置：{item.spaces.name}</span>
+                                        <span className="whitespace-normal">位置：{item.spaces?.name || '未指定'}</span>
                                       </div>
                                       {item.category && (
                                         <div>
@@ -591,6 +739,45 @@ export default function HomePage() {
           </div>
         </div>
       )}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowShareModal(false)}>
+          <div className="w-full max-w-lg bg-white rounded-3xl border border-white/40 shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] p-6">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl bg-white/20 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v.01M12 20v.01M20 12v.01M12 4v.01M7.75 7.75l.01.01M16.25 7.75l.01.01M16.25 16.25l.01.01M7.75 16.25l.01.01"/><path d="M8 12a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z"/></svg>
+                </div>
+                <h3 className="font-bold text-white text-[20pt]">分享我的清单</h3>
+              </div>
+            </div>
+            {/* Body */}
+            <div className="p-6 space-y-6">
+              <p className="text-slate-700 text-[14pt]">
+                我在 HomeInventory AI 有 <span className="font-semibold text-slate-900">{totalItems}</span> 件物品，
+                总价值约 <span className="font-semibold text-slate-900">¥{totalWorth.toFixed(2)}</span>。来看看你的吧！
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-2xl border border-sky-200/60 bg-sky-50/60 p-4">
+                  <div className="text-slate-900 font-semibold text-[14pt]">{totalItems}</div>
+                  <div className="text-slate-600 text-[14pt]">物品</div>
+                </div>
+                <div className="rounded-2xl border border-violet-200/60 bg-violet-50/60 p-4">
+                  <div className="text-slate-900 font-semibold text-[14pt]">¥{totalWorth.toFixed(2)}</div>
+                  <div className="text-slate-600 text-[14pt]">总价值</div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3 justify-end">
+                <button onClick={() => setShowShareModal(false)} className="modern-button-secondary px-5 py-3">取消</button>
+                <button onClick={handleShareSummary} className="modern-button-primary px-5 py-3">保存图片</button>
+                <button onClick={handleShareWebsite} className="modern-button-primary px-5 py-3">分享网站</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </AuthGuard>
   )
-} 
+}

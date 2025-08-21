@@ -74,17 +74,24 @@ export async function POST(request: NextRequest) {
     let imageUrl
     if (data.path) {
       // 对于private bucket，使用签名URL
-      const { data: signedData } = await supabaseAuth.storage
+      const { data: signedData, error: signedErr } = await supabaseAuth.storage
         .from('item-photos')
-        .createSignedUrl(data.path, 60 * 60 * 24 * 365) // 1年有效期
-      
-      imageUrl = signedData?.signedUrl
+        .createSignedUrl(data.path, 60 * 60) // 1小时有效期
+
+      if (signedErr || !signedData?.signedUrl) {
+        console.warn('生成签名URL失败，回退到公共URL:', signedErr)
+        const { data: pub } = await supabaseAuth.storage
+          .from('item-photos')
+          .getPublicUrl(fileName)
+        imageUrl = pub.publicUrl
+      } else {
+        imageUrl = signedData.signedUrl
+      }
     } else {
       // 对于public bucket，使用公共URL
       const { data: { publicUrl } } = supabaseAuth.storage
         .from('item-photos')
         .getPublicUrl(fileName)
-      
       imageUrl = publicUrl
     }
 

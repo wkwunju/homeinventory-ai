@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
+import { useItemsCache } from '@/lib/items-cache'
 import { ArrowLeft, Save, Package, ChevronRight, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -43,6 +44,7 @@ export default function AddItemClientPage() {
   const { user } = useAuth()
   const { t } = useLanguage()
   const [loading, setLoading] = useState(false)
+  const { addItem } = useItemsCache()
   const [spaces, setSpaces] = useState<Space[]>([])
   const [flatSpaces, setFlatSpaces] = useState<Space[]>([])
   const [selectedRoom, setSelectedRoom] = useState<Space | null>(null)
@@ -138,6 +140,11 @@ export default function AddItemClientPage() {
           })
         )
       )
+      // Update cache for successful creates
+      const results = await Promise.all(responses.map(r => r.ok ? r.json() : null))
+      results.forEach((res) => {
+        if (res?.item) addItem(res.item)
+      })
       const errors = responses.filter(r => !r.ok)
       if (errors.length > 0) {
         alert(t('add.addFailed', { count: errors.length }))

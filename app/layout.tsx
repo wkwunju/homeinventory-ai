@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import TopBar from '@/components/topbar'
 import { AuthProvider } from '@/lib/auth-context'
+import { ItemsCacheProvider } from '@/lib/items-cache'
 import { LanguageProvider } from '@/lib/i18n'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -22,12 +23,14 @@ export default function RootLayout({
       <body className={inter.className}>
         <LanguageProvider>
           <AuthProvider>
-            <div className="min-h-screen overflow-y-auto pt-16 touch-pan-y">
-              <TopBar />
-              <main className="px-5 sm:px-6">
-                {children}
-              </main>
-            </div>
+            <ItemsCacheProvider>
+              <div className="min-h-screen overflow-y-auto pt-16 touch-pan-y">
+                <TopBar />
+                <main className="px-5 sm:px-6">
+                  {children}
+                </main>
+              </div>
+            </ItemsCacheProvider>
           </AuthProvider>
         </LanguageProvider>
       </body>

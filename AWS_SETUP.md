@@ -1,11 +1,8 @@
-# 🚀 AWS Rekognition 配置指南
+# AWS Rekognition 已移除
 
-本指南将帮助你设置 AWS Rekognition 服务，用于 HomeInventory AI 应用的图像识别功能。
+本项目已移除 AWS Rekognition 相关代码与依赖，统一使用 OpenAI 视觉模型完成图像识别。
 
-## 📋 前置要求
-
-1. AWS 账号（如果没有，请先注册：[https://aws.amazon.com](https://aws.amazon.com)）
-2. 基本的 AWS 服务了解
+如果你在旧分支或 Fork 中仍看到本文件，请以当前说明为准：无需配置任何 AWS 变量。
 
 ## 🔧 步骤 1：创建 IAM 用户
 
@@ -38,15 +35,9 @@
 
 ## 🔧 步骤 2：配置环境变量
 
-### 2.1 本地开发环境
-在项目根目录创建 `.env.local` 文件：
+## 当前识别方案
 
-```env
-# AWS Rekognition 配置
-AWS_ACCESS_KEY_ID=你的Access_Key_ID
-AWS_SECRET_ACCESS_KEY=你的Secret_Access_Key
-AWS_REGION=us-east-1
-```
+- OpenAI 视觉：配置 `OPENAI_API_KEY` 与可选 `OPENAI_VISION_MODEL` 即可。
 
 ### 2.2 生产环境（Vercel）
 在 Vercel 项目设置中添加环境变量：
@@ -66,24 +57,11 @@ AWS_REGION=us-east-1
 npm run dev
 ```
 
-### 3.2 测试图像识别
-1. 访问 `http://localhost:3000/upload`
-2. 上传一张包含物品的图片
-3. 检查控制台是否有错误信息
+访问 `http://localhost:3000/upload` 上传图片进行识别测试。
 
-## 💰 成本说明
+## 其它
 
-AWS Rekognition 采用按使用量付费模式：
-
-| 服务 | 价格（每 1000 次请求） |
-|------|----------------------|
-| 物体识别 | $1.00 |
-| 文字识别 | $1.50 |
-
-**预估成本：**
-- 个人使用：每月约 $1-5
-- 家庭使用：每月约 $5-15
-- 小型团队：每月约 $15-50
+如需自建识别后端，可在私有分支实现，但本仓库不再维护 AWS 相关实现。
 
 ## 🔒 安全最佳实践
 

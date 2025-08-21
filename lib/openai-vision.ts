@@ -146,7 +146,6 @@ export async function recognizeImageWithOpenAI(
   try {
     const response = await client.chat.completions.create({
       model,
-      temperature: 0.1, // 降低随机性，提高一致性
       messages: [
         {
           role: 'system',
@@ -167,8 +166,7 @@ export async function recognizeImageWithOpenAI(
             }
           ]
         }
-      ],
-      max_tokens: 2000 // 增加 token 限制以容纳更详细的输出
+      ]
     })
 
     const content = response.choices?.[0]?.message?.content || ''

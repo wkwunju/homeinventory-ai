@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Save, ArrowLeft, Trash2, Package } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
+import { useItemsCache } from '@/lib/items-cache'
 import AuthGuard from '@/components/auth-guard'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -37,6 +38,7 @@ export default function ItemDetailPage() {
   const params = useParams()
   const itemId = params.id as string
   const { user } = useAuth()
+  const { updateItem, removeItem } = useItemsCache()
 
   const [item, setItem] = useState<Item | null>(null)
   const [loading, setLoading] = useState(true)
@@ -111,6 +113,8 @@ export default function ItemDetailPage() {
         const errorData = await response.json().catch(() => ({}))
         throw new Error(errorData.error || '保存失败')
       }
+      const updated = await response.json()
+      if (updated?.id) updateItem(updated)
       alert('保存成功')
     } catch (error) {
       alert(error instanceof Error ? error.message : '保存失败')
@@ -125,6 +129,7 @@ export default function ItemDetailPage() {
       const response = await fetch(`/api/items/${itemId}`, { method: 'DELETE' })
       if (response.ok) {
         alert('删除成功')
+        removeItem(itemId)
         router.back()
       } else {
         alert('删除失败')
