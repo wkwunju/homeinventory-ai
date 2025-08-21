@@ -31,7 +31,13 @@ export async function GET(request: NextRequest) {
     let query = supabaseAuth
       .from('items')
       .select(`
-        *,
+        id,
+        name,
+        quantity,
+        category,
+        expire_date,
+        value,
+        photo_url,
         spaces (
           id,
           name,

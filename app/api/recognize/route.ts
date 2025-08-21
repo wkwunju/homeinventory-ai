@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
     // 将文件转换为 buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const base64Image = buffer.toString('base64')
 
     // 检查 OpenAI 配置
     const openaiApiKey = process.env.OPENAI_API_KEY
@@ -90,7 +89,6 @@ export async function POST(request: NextRequest) {
             color: '棕色'
           }
         ],
-        image: base64Image,
         note: '这是模拟数据，请配置 OpenAI 获取真实识别结果'
       })
     }
@@ -99,8 +97,7 @@ export async function POST(request: NextRequest) {
     const recognizedItems = await recognizeImageWithOpenAI(buffer, file.type || 'image/jpeg')
 
     return NextResponse.json({
-      items: recognizedItems,
-      image: base64Image,
+      items: recognizedItems
     })
   } catch (error) {
     console.error('图像识别错误:', error)

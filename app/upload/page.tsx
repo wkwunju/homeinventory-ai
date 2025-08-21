@@ -533,8 +533,31 @@ export default function UploadPage() {
         ]
         setRecognizedItems(mockItems)
       } else {
+        // Compress image before upload to reduce latency and cost
+        const compressImage = async (file: File, maxDim = 1280, quality = 0.6): Promise<Blob> => {
+          const img = document.createElement('img')
+          const url = URL.createObjectURL(file)
+          await new Promise((res, rej) => { img.onload = () => res(null); img.onerror = rej; img.src = url })
+          const { naturalWidth: w, naturalHeight: h } = img
+          let targetW = w
+          let targetH = h
+          if (Math.max(w, h) > maxDim) {
+            if (w >= h) { targetW = maxDim; targetH = Math.round((h / w) * maxDim) }
+            else { targetH = maxDim; targetW = Math.round((w / h) * maxDim) }
+          }
+          const canvas = document.createElement('canvas')
+          canvas.width = targetW
+          canvas.height = targetH
+          const ctx = canvas.getContext('2d')!
+          ctx.drawImage(img, 0, 0, targetW, targetH)
+          return await new Promise<Blob>((resolve) => {
+            canvas.toBlob((blob) => { URL.revokeObjectURL(url); resolve(blob || file) }, 'image/jpeg', quality)
+          })
+        }
+
+        const compressed = await compressImage(fileToUse)
         const formData = new FormData()
-        formData.append('image', fileToUse)
+        formData.append('image', compressed, 'upload.jpg')
 
         console.log('[upload] POST /api/recognize')
         const response = await fetch('/api/recognize', {
