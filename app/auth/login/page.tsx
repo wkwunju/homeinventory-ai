@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
+import { useLanguage } from '@/lib/i18n'
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -12,6 +13,7 @@ import { Input } from '@/components/ui/input'
 export default function LoginPage() {
   const router = useRouter()
   const { signIn } = useAuth()
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -49,18 +51,19 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center gap-3 mb-8">
-          <Button variant="ghost" size="icon" className="h-12 w-12" onClick={() => router.back()}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">登录</h1>
+        <div className="text-center mb-8">
+          <div className="mx-auto w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center mb-3">
+            <svg viewBox="0 0 24 24" className="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+          </div>
+          <h1 className="font-bold text-[20pt] bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">{t('auth.loginTitle')}</h1>
+          <p className="text-slate-600 text-[14pt] mt-1">{t('auth.loginSubtitle')}</p>
         </div>
 
-        <Card>
+        <Card className="border-white/60 shadow-[0_12px_40px_rgba(99,102,241,0.12)] bg-white/95 backdrop-blur">
           <CardContent className="p-6 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">邮箱地址</label>
+                <label className="block text-[14pt] font-semibold text-slate-700 mb-3">{t('auth.email')}</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                   <Input
@@ -68,14 +71,14 @@ export default function LoginPage() {
                     required
                     value={formData.email}
                     onChange={(e) => handleChange('email', e.target.value)}
-                    placeholder="请输入邮箱地址"
-                    className="pl-10"
+                    placeholder={t('auth.emailPlaceholder')}
+                    className="pl-10 h-12 text-[14pt]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">密码</label>
+                <label className="block text-[14pt] font-semibold text-slate-700 mb-3">{t('auth.password')}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                   <Input
@@ -83,8 +86,8 @@ export default function LoginPage() {
                     required
                     value={formData.password}
                     onChange={(e) => handleChange('password', e.target.value)}
-                    placeholder="请输入密码"
-                    className="pl-10 pr-10"
+                    placeholder={t('auth.passwordPlaceholder')}
+                    className="pl-10 pr-10 h-12 text-[14pt]"
                   />
                   <button
                     type="button"
@@ -106,16 +109,16 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <Button type="submit" disabled={loading} variant="primary" size="lg" className="w-full h-12 text-base">
-                {loading ? '登录中...' : '登录'}
+              <Button type="submit" disabled={loading} variant="primary" size="lg" className="w-full h-12 text-[14pt]">
+                {loading ? t('common.loading') : t('auth.login')}
               </Button>
             </form>
 
             <div className="text-center">
-              <p className="text-sm text-slate-600">
-                还没有账号？{' '}
+              <p className="text-[14pt] text-slate-600">
+                {t('auth.noAccount')} {' '}
                 <Link href="/auth/register" className="text-sky-600 hover:text-sky-700 font-medium">
-                  立即注册
+                  {t('auth.goRegister')}
                 </Link>
               </p>
             </div>

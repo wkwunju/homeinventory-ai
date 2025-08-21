@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Plus, Home, Grid3X3, Package, Edit, Trash2, ChevronRight } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
+import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -47,6 +48,7 @@ export default function SpaceDetailPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [loading, setLoading] = useState(true)
   const [room, setRoom] = useState<Space | null>(null)
   const [locations, setLocations] = useState<Space[]>([])
@@ -347,17 +349,17 @@ export default function SpaceDetailPage() {
           </div>
 
           {/* 内容区域 */}
-          <div className={`grid gap-8 ${isLocationDetail ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
+          <div className={`grid gap-8 grid-cols-1 ${isLocationDetail ? '' : 'lg:grid-cols-3'}`}>
             {/* 左侧：位置列表 */}
             {!isLocationDetail && (
-              <Card>
+              <Card className="lg:col-span-1 col-span-1">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl text-slate-800">位置列表</CardTitle>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <CardTitle className="text-xl text-slate-800">{t('spacesPage.locations')}</CardTitle>
                     <Link href="/spaces/add">
                       <Button variant="primary" size="lg" className="h-12 px-6">
                         <Plus className="w-4 h-4 mr-2" />
-                        添加位置
+                        {t('spacesPage.addLocation')}
                       </Button>
                     </Link>
                   </div>
@@ -366,12 +368,12 @@ export default function SpaceDetailPage() {
                   {locations.length === 0 ? (
                     <div className="text-center py-12">
                       <Grid3X3 className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-slate-800 mb-2">暂无位置</h3>
-                      <p className="text-slate-500 mb-6">为这个房间添加具体位置来开始管理物品</p>
+                      <h3 className="text-lg font-medium text-slate-800 mb-2">{t('spacesPage.noLocations')}</h3>
+                      <p className="text-slate-500 mb-6">{t('spacesPage.addFirstLocation')}</p>
                       <Link href="/spaces/add">
                         <Button variant="primary" size="lg" className="h-12 px-6">
                           <Plus className="h-4 w-4 mr-2" />
-                          添加第一个位置
+                          {t('spacesPage.addFirstLocation')}
                         </Button>
                       </Link>
                     </div>
@@ -397,8 +399,8 @@ export default function SpaceDetailPage() {
                                 <Package className="h-7 w-7" />
                               </div>
                               <div className="flex-1">
-                                <div className="font-semibold text-slate-800 text-lg">查看所有物品</div>
-                                <div className="text-slate-500">显示房间内所有位置的物品</div>
+                                <div className="font-semibold text-slate-800 text-lg">{t('spacesPage.viewAllItems')}</div>
+                                <div className="text-slate-500">{t('spacesPage.showAllItems')}</div>
                               </div>
                             </div>
                           </div>
@@ -466,9 +468,9 @@ export default function SpaceDetailPage() {
             )}
 
             {/* 右侧：物品列表 */}
-            <Card>
+            <Card className={`${isLocationDetail ? '' : 'lg:col-span-2 col-span-1'}`}>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <CardTitle className="text-xl text-slate-800">
                     {selectedLocation ? `${selectedLocation.name}的物品` : '房间内所有物品'}
                   </CardTitle>

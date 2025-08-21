@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
+import { useLanguage } from '@/lib/i18n'
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, User, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -12,6 +13,7 @@ import { Input } from '@/components/ui/input'
 export default function RegisterPage() {
   const router = useRouter()
   const { signUp } = useAuth()
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -51,7 +53,7 @@ export default function RegisterPage() {
         }, 2000)
       }
     } catch (err) {
-      setError('注册失败，请重试')
+      setError(t('auth.registerFailed'))
     } finally {
       setLoading(false)
     }
@@ -90,14 +92,14 @@ export default function RegisterPage() {
           <Button variant="ghost" size="icon" className="h-12 w-12" onClick={() => router.back()}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">注册</h1>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">{t('auth.registerTitle')}</h1>
         </div>
 
         <Card>
           <CardContent className="p-6 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">邮箱地址</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">{t('auth.email')}</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                   <Input
@@ -105,14 +107,14 @@ export default function RegisterPage() {
                     required
                     value={formData.email}
                     onChange={(e) => handleChange('email', e.target.value)}
-                    placeholder="请输入邮箱地址"
+                    placeholder={t('auth.emailPlaceholder')}
                     className="pl-10"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">密码</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">{t('auth.password')}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                   <Input
@@ -120,7 +122,7 @@ export default function RegisterPage() {
                     required
                     value={formData.password}
                     onChange={(e) => handleChange('password', e.target.value)}
-                    placeholder="请输入密码（至少6位）"
+                    placeholder={t('auth.passwordMin')}
                     className="pl-10 pr-10"
                   />
                   <button
@@ -138,7 +140,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">确认密码</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">{t('auth.confirmPassword')}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                   <Input
@@ -146,7 +148,7 @@ export default function RegisterPage() {
                     required
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                    placeholder="请再次输入密码"
+                    placeholder={t('auth.confirmPassword')}
                     className="pl-10 pr-10"
                   />
                   <button
@@ -170,15 +172,15 @@ export default function RegisterPage() {
               )}
 
               <Button type="submit" disabled={loading} variant="primary" size="lg" className="w-full h-12 text-base">
-                {loading ? '注册中...' : '注册'}
+                {loading ? t('common.loading') : t('auth.register')}
               </Button>
             </form>
 
             <div className="text-center">
               <p className="text-sm text-slate-600">
-                已有账号？{' '}
+                {t('auth.haveAccount')} {' '}
                 <Link href="/auth/login" className="text-sky-600 hover:text-sky-700 font-medium">
-                  立即登录
+                  {t('auth.goLogin')}
                 </Link>
               </p>
             </div>

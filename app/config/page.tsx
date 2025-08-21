@@ -142,7 +142,7 @@ export default function SettingsPage() {
                   </div>
                   <div>
                     <CardTitle className="text-xl text-slate-800">{t('settings.preferences')}</CardTitle>
-                    <p className="text-sm text-slate-500">应用偏好设置</p>
+                    <p className="text-sm text-slate-500">{t('settings.languageDesc')}</p>
                   </div>
                 </div>
               </CardHeader>
@@ -152,8 +152,8 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-3">
                       <Bell className="w-5 h-5 text-slate-500" />
                       <div>
-                        <div className="font-medium text-slate-800">通知设置</div>
-                        <div className="text-sm text-slate-600">管理推送通知</div>
+                        <div className="font-medium text-slate-800">{t('settings.notifications')}</div>
+                        <div className="text-sm text-slate-600">{t('settings.notificationsDesc')}</div>
                       </div>
                     </div>
                     <div className="text-slate-400">
@@ -167,8 +167,8 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-3">
                       <Shield className="w-5 h-5 text-slate-500" />
                       <div>
-                        <div className="font-medium text-slate-800">隐私设置</div>
-                        <div className="text-sm text-slate-600">管理数据隐私</div>
+                        <div className="font-medium text-slate-800">{t('settings.privacy')}</div>
+                        <div className="text-sm text-slate-600">{t('settings.privacyDesc')}</div>
                       </div>
                     </div>
                     <div className="text-slate-400">
@@ -183,7 +183,7 @@ export default function SettingsPage() {
                       <Info className="w-5 h-5 text-slate-500" />
                       <div>
                         <div className="font-medium text-slate-800">{t('settings.about')}</div>
-                        <div className="text-sm text-slate-600">关于应用</div>
+                        <div className="text-sm text-slate-600">{t('settings.aboutApp')}</div>
                       </div>
                     </div>
                     <div className="text-slate-400">
@@ -197,9 +197,11 @@ export default function SettingsPage() {
             {/* 退出登录 */}
             <Card>
               <CardContent>
-                <Button onClick={handleLogout} disabled={loading} variant="destructive" className="w-full h-12">
-                  {loading ? t('common.loading') : t('auth.logout')}
-                </Button>
+                <div className="flex justify-center">
+                  <Button onClick={handleLogout} disabled={loading} variant="destructive" className="h-12 min-w-[200px]">
+                    {loading ? t('common.loading') : t('auth.logout')}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

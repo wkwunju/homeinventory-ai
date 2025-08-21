@@ -39,7 +39,7 @@ export default function TopBar() {
           </button>
           {open && (
             <div className="absolute right-0 mt-2 w-48 rounded-xl border border-[#eaeaea] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.06)] p-1">
-              <Link href="/config" className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-50">
+              <Link href="/config" className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-50" onClick={() => setOpen(false)}>
                 <Settings className="h-4 w-4" />
                 {t('navigation.settings')}
               </Link>

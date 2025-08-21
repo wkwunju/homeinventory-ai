@@ -48,7 +48,7 @@ export default function HomePage() {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<'spaces' | 'items'>('items')
   const [spaces, setSpaces] = useState<Space[]>([])
-  const { items: cachedItems, loaded, refresh } = useItemsCache()
+  const { items: cachedItems, loaded, refresh, removeItem } = useItemsCache()
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -248,7 +248,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-emerald-500" />
-                      <span className="whitespace-normal">位置：{item.spaces?.name || '未指定'}</span>
+                      <span className="whitespace-normal">{t('home.location')}：{item.spaces?.name || t('home.unspecified')}</span>
                     </div>
                     {item.category && (
                       <div>
@@ -261,19 +261,25 @@ export default function HomePage() {
                   {item.expire_date && (
                     <div className="flex items-center gap-1 text-sm text-amber-600">
                       <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
-                      过期: {new Date(item.expire_date).toLocaleDateString()}
+                      {t('home.expire')}: {new Date(item.expire_date).toLocaleDateString()}
                     </div>
                   )}
                 </div>
               </div>
-              <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
+              <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
                 <Link 
                   href={`/item/${item.id}`}
                   className="modern-button-ghost inline-flex items-center gap-2 px-3 py-1.5"
                 >
-                  查看详情
+                  {t('home.viewDetail')}
                   <Sparkles className="h-4 w-4" />
                 </Link>
+                <button
+                  onClick={() => handleDeleteHomeItem(item.id)}
+                  className="modern-button-secondary inline-flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50"
+                >
+                  {t('common.delete')}
+                </button>
               </div>
             </div>
           </div>
@@ -325,6 +331,27 @@ export default function HomePage() {
     }).length
     return { totalItems, totalWorth, expiringSoon, expiredCount }
   }, [items])
+
+  const locationItemCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    allItems.forEach((it) => {
+      if (it.space_id) counts[it.space_id] = (counts[it.space_id] || 0) + 1
+    })
+    return counts
+  }, [allItems])
+
+  const handleDeleteHomeItem = async (id: string) => {
+    if (!confirm(t('common.delete') + '?')) return
+    try {
+      const res = await fetch(`/api/items/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Delete failed')
+      removeItem(id)
+      setItems((prev) => prev.filter((i) => i.id !== id))
+      setAllItems((prev) => prev.filter((i) => i.id !== id))
+    } catch (e) {
+      alert(t('common.error'))
+    }
+  }
 
   const [showShareModal, setShowShareModal] = useState(false)
 
@@ -477,14 +504,13 @@ export default function HomePage() {
               <CardContent className="p-6">
                 <div className="space-y-2 text-slate-700 leading-relaxed">
                   <p>
-                    <span className="text-slate-900 font-semibold">欢迎回来，{user?.email?.split('@')[0] || '朋友'} 👋</span>
+                    <span className="text-slate-900 font-semibold">{t('navigation.home')}, {user?.email?.split('@')[0] || 'friend'} 👋</span>
                   </p>
                   <p>
-                    今天的家当清单：共有 <span className="font-semibold text-slate-900">{totalItems}</span> 件物品，分布在 <span className="font-semibold text-slate-900">{roomsCount}</span> 个房间里，
-                    估算总价值约 <span className="font-semibold text-slate-900">¥{totalWorth.toFixed(2)}</span>。
+                    {t('home.summary', { items: totalItems, rooms: roomsCount, worth: totalWorth.toFixed(2) })}
                   </p>
                   <p>
-                    另外，接下来一周有 <span className="font-semibold text-amber-600">{expiringSoon}</span> 件物品可能到期，已过期的有 <span className="font-semibold text-rose-600">{expiredCount}</span> 件，别忘了优先处理哦。
+                    {t('home.summaryMore', { soon: expiringSoon, expired: expiredCount })}
                   </p>
                 </div>
                 {/* 搜索框移动到概览卡片下方 */}
@@ -505,38 +531,60 @@ export default function HomePage() {
                     aria-label="生成分享图"
                   >
                     <Share2 className="w-5 h-5" />
-                    分享
+                    {t('share.button')}
                   </button>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Tab 切换 */}
-          <div className="mb-10">
-            <div className="inline-flex rounded-2xl bg-white/80 backdrop-blur-sm p-1.5 shadow-xl border border-white/40 shadow-sky-100/50">
+          {/* Toggle + content header merged */}
+          <div className="mb-10 flex items-center justify-between gap-4 flex-wrap">
+            <div className="inline-flex rounded-2xl bg-white/80 backdrop-blur-sm p-1.5 shadow-xl border border-white/40 shadow-sky-100/50 overflow-x-auto">
               <button
                 onClick={() => handleTabChange('items')}
-                className={`inline-flex items-center gap-3 px-8 py-4 rounded-xl font-semibold transition-all duration-300 ${
+                className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                   activeTab === 'items'
                     ? 'bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] text-white shadow-lg'
                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50/80'
                 }`}
+                aria-label={t('home.manageItems')}
               >
                 <Package className="w-6 h-6" />
-                {t('home.manageItems')}
+                {t('home.myItems')}
               </button>
               <button
                 onClick={() => handleTabChange('spaces')}
-                className={`inline-flex items-center gap-3 px-8 py-4 rounded-xl font-semibold transition-all duration-300 ${
+                className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                   activeTab === 'spaces'
                     ? 'bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] text-white shadow-lg'
                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50/80'
                 }`}
+                aria-label={t('home.manageSpaces')}
               >
                 <span className="text-2xl">🏠</span>
-                {t('home.manageSpaces')}
+                {t('home.mySpaces')}
               </button>
+            </div>
+
+            <div className="w-full sm:w-auto flex justify-end sm:justify-start">
+              {activeTab === 'items' ? (
+                <button
+                  onClick={() => setShowAddItemModal(true)}
+                  className="inline-flex items-center justify-center w-12 h-12 rounded-full shadow-md text-white bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] hover:shadow-lg transition-all"
+                  aria-label={t('home.addItemCTA')}
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowAddSpaceModal(true)}
+                  className="inline-flex items-center justify-center w-12 h-12 rounded-full shadow-md text-white bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] hover:shadow-lg transition-all"
+                  aria-label={t('home.addSpaceCTA')}
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -555,7 +603,7 @@ export default function HomePage() {
                     <div className="flex items-center justify-between mb-8">
                       <h2 className="text-2xl font-semibold text-slate-800 flex items-center gap-3">
                         <Search className="h-6 w-6 text-sky-500" />
-                        搜索结果: "{searchQuery}"
+                        {t('home.searchResults')}: "{searchQuery}"
                       </h2>
                       <button
                         onClick={() => {
@@ -565,7 +613,7 @@ export default function HomePage() {
                         }}
                         className="modern-button-secondary inline-flex items-center gap-2 px-5 py-3"
                       >
-                        清除搜索
+                        {t('home.clearSearch')}
                       </button>
                     </div>
                     
@@ -574,7 +622,7 @@ export default function HomePage() {
                       <div className="mb-10">
                         <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
                           <Home className="h-5 w-5 text-sky-500" />
-                          空间 ({searchResults.spaces.length})
+                          {t('home.spacesSection', { count: searchResults.spaces.length })}
                         </h3>
                         <div className="space-y-5">
                           {searchResults.spaces.map(space => renderSpace(space))}
@@ -587,7 +635,7 @@ export default function HomePage() {
                       <div>
                         <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
                           <Package className="h-5 w-5 text-emerald-500" />
-                          物品 ({searchResults.items.length})
+                          {t('home.itemsSection', { count: searchResults.items.length })}
                         </h3>
                         <div className="grid gap-5">
                           {searchResults.items.map(item => (
@@ -643,8 +691,8 @@ export default function HomePage() {
                         <div className="mx-auto h-28 w-28 rounded-full bg-gradient-to-br from-slate-50 to-gray-50 flex items-center justify-center mb-6 shadow-lg border border-slate-200/40">
                           <Search className="h-14 w-14 text-slate-400" />
                         </div>
-                        <h3 className="text-xl font-semibold text-slate-800 mb-3">未找到相关结果</h3>
-                        <p className="text-slate-600 text-lg">尝试使用不同的关键词搜索</p>
+                        <h3 className="text-xl font-semibold text-slate-800 mb-3">{t('home.noSearchResultsTitle')}</h3>
+                        <p className="text-slate-600 text-lg">{t('home.noSearchResultsHint')}</p>
                       </div>
                     )}
                   </div>
@@ -652,46 +700,62 @@ export default function HomePage() {
                   // 正常的tab内容
                   activeTab === 'spaces' ? (
                     <div>
-                      <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-semibold text-slate-800 flex items-center gap-3">
-                          <Home className="h-6 w-6 text-sky-500" />
-                          我的空间
-                        </h2>
-                        <button onClick={() => setShowAddSpaceModal(true)} className="modern-button-primary inline-flex items-center gap-3 px-6 py-3">
-                          <Plus className="w-5 h-5" />
-                          添加空间
-                        </button>
-                      </div>
-                      <div className="space-y-5">
-                        {spaces.length === 0 ? (
-                          <div className="text-center py-16">
-                            <div className="mx-auto h-28 w-28 rounded-full bg-gradient-to-br from-sky-50 to-blue-50 flex items-center justify-center mb-6 shadow-lg border border-sky-200/40">
-                              <span className="text-5xl">🏠</span>
-                            </div>
-                            <h3 className="text-xl font-semibold text-slate-800 mb-3">暂无空间</h3>
-                            <p className="text-slate-600 mb-8 text-lg">创建你的第一个空间来开始管理</p>
-                            <button onClick={() => setShowAddSpaceModal(true)} className="modern-button-primary inline-flex items-center gap-3 px-6 py-3">
-                              <Plus className="h-5 w-5" />
-                              创建第一个空间
-                            </button>
+                      {spaces.length === 0 ? (
+                        <div className="text-center py-16">
+                          <div className="mx-auto h-28 w-28 rounded-full bg-gradient-to-br from-sky-50 to-blue-50 flex items-center justify-center mb-6 shadow-lg border border-sky-200/40">
+                            <span className="text-5xl">🏠</span>
                           </div>
-                        ) : (
-                          spaces.map(space => renderSpace(space))
-                        )}
-                      </div>
+                          <h3 className="text-xl font-semibold text-slate-800 mb-3">{t('home.noSpaces')}</h3>
+                          <p className="text-slate-600 mb-8 text-lg">{t('home.createFirstSpace')}</p>
+                          <button onClick={() => setShowAddSpaceModal(true)} className="modern-button-primary inline-flex items-center gap-3 px-6 py-3">
+                            <Plus className="h-5 w-5" />
+                            创建第一个空间
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                          {spaces.filter(r => r.level === 1).map(room => (
+                            <div key={room.id} className="rounded-3xl border border-sky-200/60 bg-gradient-to-br from-sky-50/70 to-blue-50/70 p-5 shadow-lg">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 rounded-2xl bg-white shadow-md border border-sky-200/50 flex items-center justify-center text-2xl">
+                                    {room.icon || '🏠'}
+                                  </div>
+                                  <div>
+                                    <div className="font-semibold text-slate-800 text-lg">{room.name}</div>
+                                    {room.description && (
+                                      <div className="text-sm text-slate-600 mt-0.5">{room.description}</div>
+                                    )}
+                                  </div>
+                                </div>
+                                <Link href={`/spaces/${room.id}`} className="text-slate-500 hover:text-sky-600">
+                                  <Grid3X3 className="w-5 h-5" />
+                                </Link>
+                              </div>
+                              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {(room.children || []).filter((loc: any) => loc.level === 2).map((loc: any) => (
+                                  <Link key={loc.id} href={`/spaces/${room.id}?location=${loc.id}`} className="group">
+                                    <div className="rounded-2xl border border-slate-200/60 bg-white/90 p-3 flex items-center gap-3 hover:border-sky-300/80 hover:shadow-md transition-all">
+                                      <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl border border-slate-200/60">
+                                        {loc.icon || '📦'}
+                                      </div>
+                                      <div className="flex-1">
+                                        <div className="font-medium text-slate-800">{loc.name}</div>
+                                        <div className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                                          {locationItemCounts[loc.id] ? t('home.itemsCount', { count: locationItemCounts[loc.id] }) : ''}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div>
-                      <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-semibold text-slate-800 flex items-center gap-3">
-                          <Package className="h-6 w-6 text-emerald-500" />
-                          我的物品
-                        </h2>
-                        <button onClick={() => setShowAddItemModal(true)} className="modern-button-primary inline-flex items-center gap-3 px-6 py-3">
-                          <Plus className="w-5 h-5" />
-                          添加物品
-                        </button>
-                      </div>
                       {renderItems()}
                     </div>
                   )
@@ -748,15 +812,12 @@ export default function HomePage() {
                 <div className="h-10 w-10 rounded-2xl bg-white/20 flex items-center justify-center">
                   <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v.01M12 20v.01M20 12v.01M12 4v.01M7.75 7.75l.01.01M16.25 7.75l.01.01M16.25 16.25l.01.01M7.75 16.25l.01.01"/><path d="M8 12a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z"/></svg>
                 </div>
-                <h3 className="font-bold text-white text-[20pt]">分享我的清单</h3>
+                <h3 className="font-bold text-white text-[20pt]">{t('share.modalTitle')}</h3>
               </div>
             </div>
             {/* Body */}
             <div className="p-6 space-y-6">
-              <p className="text-slate-700 text-[14pt]">
-                我在 HomeInventory AI 有 <span className="font-semibold text-slate-900">{totalItems}</span> 件物品，
-                总价值约 <span className="font-semibold text-slate-900">¥{totalWorth.toFixed(2)}</span>。来看看你的吧！
-              </p>
+              <p className="text-slate-700 text-[14pt]">{t('share.modalText', { items: totalItems, worth: totalWorth.toFixed(2) })}</p>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-2xl border border-sky-200/60 bg-sky-50/60 p-4">
@@ -770,9 +831,9 @@ export default function HomePage() {
               </div>
 
               <div className="flex flex-wrap gap-3 justify-end">
-                <button onClick={() => setShowShareModal(false)} className="modern-button-secondary px-5 py-3">取消</button>
-                <button onClick={handleShareSummary} className="modern-button-primary px-5 py-3">保存图片</button>
-                <button onClick={handleShareWebsite} className="modern-button-primary px-5 py-3">分享网站</button>
+                <button onClick={() => setShowShareModal(false)} className="modern-button-secondary px-5 py-3">{t('share.cancel')}</button>
+                <button onClick={handleShareSummary} className="modern-button-primary px-5 py-3">{t('share.saveImage')}</button>
+                <button onClick={handleShareWebsite} className="modern-button-primary px-5 py-3">{t('share.shareWebsite')}</button>
               </div>
             </div>
           </div>
