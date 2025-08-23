@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useItemsCache } from '@/lib/items-cache'
 import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
-import { Plus, Search, Package, Grid3X3, List, Sparkles, Home, MapPin, Image as ImageIcon, Edit3, Share2 } from 'lucide-react'
+import { Plus, Search, Package, Grid3X3, List, Sparkles, Home, MapPin, Image as ImageIcon, Edit3, Share2, Crown } from 'lucide-react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -45,7 +45,7 @@ interface Item {
 
 export default function HomePage() {
   const { user } = useAuth()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [activeTab, setActiveTab] = useState<'spaces' | 'items'>('items')
   const [spaces, setSpaces] = useState<Space[]>([])
   const { items: cachedItems, loaded, refresh, removeItem } = useItemsCache()
@@ -237,7 +237,7 @@ export default function HomePage() {
       <div className="grid gap-5">
         {items.map(item => (
           <div key={item.id} className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white/90 backdrop-blur-sm p-4 transition-all duration-300 hover:shadow-xl hover:border-sky-300/60 hover:-translate-y-1 shadow-lg shadow-slate-100/50">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3 w-full">
                 <div className="flex-1">
                   <div className="font-semibold text-slate-800 text-lg mb-2">{item.name}</div>
@@ -266,17 +266,17 @@ export default function HomePage() {
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
+              <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 w-full sm:w-auto mt-2 sm:mt-0">
                 <Link 
                   href={`/item/${item.id}`}
-                  className="modern-button-ghost inline-flex items-center gap-2 px-3 py-1.5"
+                  className="modern-button-ghost inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 sm:min-w-[120px] whitespace-nowrap shrink-0"
                 >
                   {t('home.viewDetail')}
                   <Sparkles className="h-4 w-4" />
                 </Link>
                 <button
                   onClick={() => handleDeleteHomeItem(item.id)}
-                  className="modern-button-secondary inline-flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50"
+                  className="modern-button-secondary inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 sm:min-w-[100px] whitespace-nowrap shrink-0 text-red-600 hover:bg-red-50"
                 >
                   {t('common.delete')}
                 </button>
@@ -357,87 +357,97 @@ export default function HomePage() {
 
   const handleShareSummary = async () => {
     try {
-      const width = 720
-      const height = 900
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new Image()
+        image.crossOrigin = 'anonymous'
+        image.onload = () => resolve(image)
+        image.onerror = reject
+        image.src = '/share-template.png'
+      }).catch(() => null as any)
+
       const scale = 2
+      const fallbackWidth = 900
+      const fallbackHeight = 600
+      const width = img ? img.width : fallbackWidth
+      const height = img ? img.height : fallbackHeight
+
       const canvas = document.createElement('canvas')
       canvas.width = width * scale
       canvas.height = height * scale
       const ctx = canvas.getContext('2d')!
       ctx.scale(scale, scale)
 
-      // Background gradient
-      const grad = ctx.createLinearGradient(0, 0, width, height)
-      grad.addColorStop(0, '#E0F2FE') // sky-100
-      grad.addColorStop(1, '#EDE9FE') // violet-100
-      ctx.fillStyle = grad
-      ctx.fillRect(0, 0, width, height)
+      if (img) {
+        ctx.drawImage(img, 0, 0, width, height)
+      } else {
+        // Fallback gradient background if template is missing
+        const grad = ctx.createLinearGradient(0, 0, width, height)
+        grad.addColorStop(0, '#E0F2FE')
+        grad.addColorStop(1, '#EDE9FE')
+        ctx.fillStyle = grad
+        ctx.fillRect(0, 0, width, height)
+      }
 
-      // Card
-      ctx.fillStyle = 'rgba(255,255,255,0.9)'
-      ctx.strokeStyle = 'rgba(226,232,240,0.9)'
-      ctx.lineWidth = 2
-      const pad = 28
-      const cardX = pad
-      const cardY = pad
-      const cardW = width - pad * 2
-      const cardH = height - pad * 2
-      ctx.fillRect(cardX, cardY, cardW, cardH)
-      ctx.strokeRect(cardX, cardY, cardW, cardH)
+      // Compose text lines (center on label area)
+      const line1 = language === 'zh' ? '我正在用 AI 管理我的物品' : "I'm using AI to manage my stuff"
+      const line2 = language === 'zh' ? '来看看你的吧！' : 'Come and see yours!'
 
-      // Title
-      ctx.fillStyle = '#0f172a' // slate-900
-      ctx.font = 'bold 28px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
-      ctx.fillText('我的家庭清单', cardX + 24, cardY + 56)
-
-      // Stats
-      ctx.font = '18px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
-      const worth = `¥${totalWorth.toFixed(2)}`
-      const itemsText = `共有 ${totalItems} 件物品`
-      const worthText = `估算总价值 ${worth}`
-      const callToAction = '来看看你的吧 → HomeInventory AI'
-      ctx.fillStyle = '#334155' // slate-700
-      ctx.fillText(itemsText, cardX + 24, cardY + 110)
-      ctx.fillText(worthText, cardX + 24, cardY + 150)
-
-      // Decorative circles
-      ctx.fillStyle = '#93C5FD'
-      ctx.beginPath()
-      ctx.arc(width - 120, cardY + 80, 28, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.fillStyle = '#C4B5FD'
-      ctx.beginPath()
-      ctx.arc(width - 70, cardY + 130, 18, 0, Math.PI * 2)
-      ctx.fill()
-
-      // CTA pill
-      const pillX = cardX + 24
-      const pillY = cardY + cardH - 90
-      const pillW = cardW - 48
-      const pillH = 56
-      ctx.fillStyle = '#0ea5e9' // sky-600
-      ctx.beginPath()
-      ctx.moveTo(pillX + 16, pillY)
-      ctx.lineTo(pillX + pillW - 16, pillY)
-      ctx.quadraticCurveTo(pillX + pillW, pillY, pillX + pillW, pillY + 16)
-      ctx.lineTo(pillX + pillW, pillY + pillH - 16)
-      ctx.quadraticCurveTo(pillX + pillW, pillY + pillH, pillX + pillW - 16, pillY + pillH)
-      ctx.lineTo(pillX + 16, pillY + pillH)
-      ctx.quadraticCurveTo(pillX, pillY + pillH, pillX, pillY + pillH - 16)
-      ctx.lineTo(pillX, pillY + 16)
-      ctx.quadraticCurveTo(pillX, pillY, pillX + 16, pillY)
-      ctx.fill()
-
-      ctx.fillStyle = '#ffffff'
-      ctx.font = 'bold 20px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
+      // Text box roughly where the tag area is (tweak to your template)
+      const centerX = width / 2
+      const centerY = height * 0.56
+      const maxWidth = width * 0.64 // keep inside the tag
+      const baseFamily = 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
       ctx.textAlign = 'center'
-      ctx.fillText(callToAction, pillX + pillW / 2, pillY + 36)
-      ctx.textAlign = 'start'
+      ctx.fillStyle = '#0f172a'
+      ctx.shadowColor = 'rgba(0,0,0,0.18)'
+      ctx.shadowBlur = 8
 
-      // Footer
-      ctx.fillStyle = '#64748b' // slate-500
-      ctx.font = '16px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
-      ctx.fillText('分享自 HomeInventory AI', cardX + 24, cardY + cardH - 24)
+      // Helper: wrap by characters (better for Chinese)
+      const wrapByChars = (text: string, fontSize: number) => {
+        ctx.font = `bold ${fontSize}px ${baseFamily}`
+        const chars = Array.from(text)
+        const lines: string[] = []
+        let line = ''
+        for (const ch of chars) {
+          const test = line + ch
+          if (ctx.measureText(test).width > maxWidth && line.length > 0) {
+            lines.push(line)
+            line = ch
+          } else {
+            line = test
+          }
+        }
+        if (line) lines.push(line)
+        return lines
+      }
+
+      // Fit title lines
+      let titleSize = 30
+      let titleLines: string[] = []
+      while (titleSize >= 18) {
+        titleLines = wrapByChars(line1, titleSize)
+        if (titleLines.every(l => (ctx.measureText(l).width <= maxWidth)) && titleLines.length <= 2) break
+        titleSize -= 1
+      }
+      ctx.font = `bold ${titleSize}px ${baseFamily}`
+      const lineHeightTitle = titleSize * 1.3
+      const blockHeight = lineHeightTitle * titleLines.length + titleSize * 1.1
+      let currentY = centerY - blockHeight / 2
+      titleLines.forEach((l, idx) => {
+        ctx.fillText(l, centerX, currentY)
+        currentY += lineHeightTitle
+      })
+
+      // Fit secondary line
+      let subSize = Math.max(16, titleSize - 4)
+      ctx.font = `${subSize}px ${baseFamily}`
+      const subLines = wrapByChars(line2, subSize)
+      const lineHeightSub = subSize * 1.35
+      subLines.forEach(l => {
+        ctx.fillText(l, centerX, currentY)
+        currentY += lineHeightSub
+      })
+      ctx.shadowBlur = 0
 
       canvas.toBlob((blob) => {
         if (!blob) return
@@ -462,8 +472,10 @@ export default function HomePage() {
   const handleShareWebsite = async () => {
     try {
       const url = typeof window !== 'undefined' ? window.location.origin + '/' : ''
-      const text = `我在 HomeInventory AI 有 ${totalItems} 件物品，总价值约 ¥${totalWorth.toFixed(2)}。来看看你的吧！`
-      const title = '我的家庭清单'
+      const text = language === 'zh'
+        ? '我正在用 AI 管理我的物品，来看看你的吧！'
+        : "I'm using AI to manage my stuff, come and see yours"
+      const title = language === 'zh' ? '分享' : 'Share'
       if (navigator?.share) {
         await navigator.share({ title, text, url })
       } else if (navigator?.clipboard?.writeText) {
@@ -498,7 +510,7 @@ export default function HomePage() {
             <div className="h-10" />
           </div>
 
-          {/* 概览卡片 */}
+          {/* 概览卡片 + landing style intro */}
           <div className="mb-8">
             <Card className="rounded-3xl border border-[#eaeaea] shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
               <CardContent className="p-6">
@@ -513,6 +525,8 @@ export default function HomePage() {
                     {t('home.summaryMore', { soon: expiringSoon, expired: expiredCount })}
                   </p>
                 </div>
+
+                {/* Removed landing-style tiles from Home to avoid duplication pre-login */}
                 {/* 搜索框移动到概览卡片下方 */}
                 <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
                   <div className="relative max-w-lg flex-1 min-w-[260px]">
@@ -672,7 +686,7 @@ export default function HomePage() {
                                 <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
                                   <Link 
                                     href={`/item/${item.id}`}
-                                    className="modern-button-ghost inline-flex items-center gap-2 px-3 py-1.5"
+                                    className="modern-button-ghost inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 sm:min-w-[120px] whitespace-nowrap shrink-0"
                                   >
                                     查看详情
                                     <Sparkles className="h-4 w-4" />
@@ -768,17 +782,16 @@ export default function HomePage() {
       {showAddItemModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowAddItemModal(false)}>
           <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200/60 shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-semibold text-slate-800 mb-4">选择添加方式</h3>
-            <p className="text-slate-600 mb-6">请选择手动添加或使用 AI 识别添加物品</p>
+            <h3 className="text-xl font-semibold text-slate-800 mb-4 text-center">选择添加方式</h3>
             <div className="space-y-3">
               <Link href="/upload" className="block">
-                <button className="w-full flex items-center gap-3 p-4 border-2 border-sky-300/60 rounded-xl bg-sky-50/60 hover:bg-sky-100/60 transition-all">
-                  <ImageIcon className="h-5 w-5 text-sky-600" />
+                <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] text-white shadow-md hover:shadow-lg transition-all">
+                  <ImageIcon className="h-5 w-5 text-white" />
                   AI 识别添加
                 </button>
               </Link>
               <Link href="/add" className="block">
-                <button className="w-full flex items-center gap-3 p-4 border border-slate-200/60 rounded-xl hover:bg-slate-50/80 transition-all">
+                <button className="w-full flex items-center gap-3 p-4 border border-slate-200/60 rounded-xl bg-white hover:bg-slate-50/80 transition-all">
                   <Edit3 className="h-5 w-5 text-slate-600" />
                   手动添加
                 </button>
@@ -805,35 +818,32 @@ export default function HomePage() {
       )}
       {showShareModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowShareModal(false)}>
-          <div className="w-full max-w-lg bg-white rounded-3xl border border-white/40 shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            {/* Header */}
-            <div className="bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] p-6">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-2xl bg-white/20 flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v.01M12 20v.01M20 12v.01M12 4v.01M7.75 7.75l.01.01M16.25 7.75l.01.01M16.25 16.25l.01.01M7.75 16.25l.01.01"/><path d="M8 12a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z"/></svg>
+          <div className="w-full max-w-2xl bg-white rounded-3xl border border-white/40 shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Body only (title removed) */}
+            <div className="p-8 space-y-6">
+              <div className="flex items-center gap-3 text-slate-800">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-100 to-pink-100 flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-amber-600" />
                 </div>
-                <h3 className="font-bold text-white text-[20pt]">{t('share.modalTitle')}</h3>
+                <p className="text-[20pt] leading-snug">
+                  我正在使用 HomeInventory AI 管理我的“宝藏”，总价值约 ¥{totalWorth.toFixed(2)}，来看看你的吧！
+                </p>
               </div>
-            </div>
-            {/* Body */}
-            <div className="p-6 space-y-6">
-              <p className="text-slate-700 text-[14pt]">{t('share.modalText', { items: totalItems, worth: totalWorth.toFixed(2) })}</p>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-sky-200/60 bg-sky-50/60 p-4">
-                  <div className="text-slate-900 font-semibold text-[14pt]">{totalItems}</div>
-                  <div className="text-slate-600 text-[14pt]">物品</div>
+              <div className="grid grid-cols-2 gap-5">
+                <div className="rounded-2xl border border-sky-200/60 bg-sky-50/60 p-6">
+                  <div className="text-slate-900 font-semibold text-[20pt]">{totalItems}</div>
+                  <div className="text-slate-600">物品</div>
                 </div>
-                <div className="rounded-2xl border border-violet-200/60 bg-violet-50/60 p-4">
-                  <div className="text-slate-900 font-semibold text-[14pt]">¥{totalWorth.toFixed(2)}</div>
-                  <div className="text-slate-600 text-[14pt]">总价值</div>
+                <div className="rounded-2xl border border-violet-200/60 bg-violet-50/60 p-6">
+                  <div className="text-slate-900 font-semibold text-[20pt]">¥{totalWorth.toFixed(2)}</div>
+                  <div className="text-slate-600">总价值</div>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-3 justify-end">
-                <button onClick={() => setShowShareModal(false)} className="modern-button-secondary px-5 py-3">{t('share.cancel')}</button>
-                <button onClick={handleShareSummary} className="modern-button-primary px-5 py-3">{t('share.saveImage')}</button>
-                <button onClick={handleShareWebsite} className="modern-button-primary px-5 py-3">{t('share.shareWebsite')}</button>
+                <button onClick={() => setShowShareModal(false)} className="modern-button-secondary px-6 py-3">{t('share.cancel')}</button>
+                <button onClick={handleShareWebsite} className="modern-button-primary px-6 py-3">{t('share.shareWebsite')}</button>
               </div>
             </div>
           </div>

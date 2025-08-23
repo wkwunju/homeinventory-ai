@@ -238,7 +238,6 @@ export default function ItemDetailPage() {
                   </div>
 
                   <div>
-                    <div className="text-xs text-slate-500 mb-1">过期日期</div>
                     <Input variant="underline" className="h-11" type="date" value={formData.expire_date} onChange={(e) => handleChange('expire_date', e.target.value)} placeholder="过期日期" />
                   </div>
 

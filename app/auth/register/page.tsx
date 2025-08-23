@@ -18,6 +18,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    inviteCode: '',
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -43,6 +44,19 @@ export default function RegisterPage() {
     }
 
     try {
+      // validate invite code first
+      const res = await fetch('/api/invite/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: formData.inviteCode.trim() })
+      })
+      const data = await res.json().catch(() => ({ valid: false }))
+      if (!data.valid) {
+        setError('邀请码无效或已关闭')
+        setLoading(false)
+        return
+      }
+
       const { error } = await signUp(formData.email, formData.password)
       if (error) {
         setError(error.message)
@@ -98,6 +112,23 @@ export default function RegisterPage() {
         <Card>
           <CardContent className="p-6 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="rounded-xl border border-amber-200/70 bg-amber-50/70 p-3 text-sm text-amber-800">
+                Beta 测试中：需要邀请码注册（限 10 位用户）
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">邀请码</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <Input
+                    type="text"
+                    required
+                    value={formData.inviteCode}
+                    onChange={(e) => handleChange('inviteCode', e.target.value)}
+                    placeholder="请输入邀请码"
+                    className="pl-10"
+                  />
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">{t('auth.email')}</label>
                 <div className="relative">

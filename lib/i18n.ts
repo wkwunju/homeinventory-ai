@@ -218,6 +218,19 @@ const translations = {
       step3: '轻松管理',
       step3Desc: '随时查看，支持过期提醒与空间管理'
     },
+    landing: {
+      hero: '轻松管理家当！',
+      disastersTitle: '意外总会发生',
+      disastersDesc: '火灾、洪水等意外来临时，拥有一份最新的家庭清单能帮助你更快完成保险理赔。数据云端备份，不怕手机丢失。',
+      orgTitle: '智能归类',
+      orgDesc: '按照房间、位置与子位置管理，就像你的家本来就那样。',
+      addTitle: '添加更轻松',
+      addDesc: '拍照后自动识别，补充信息即可保存，继续下一件。',
+      shareTitle: '分享与协作',
+      shareDesc: '邀请家人共享管理，或通过只读链接分享给他人查看。',
+      ctaPrimary: '开始添加',
+      ctaSecondary: '了解更多'
+    },
     spaces: {
       addTitle: '添加空间',
       selectOrCreateRoom: '选择或创建房间',
@@ -491,6 +504,19 @@ const translations = {
       step2Desc: 'AI detects name, count, category and suggestions',
       step3: 'Easy Management',
       step3Desc: 'View anytime, expiry reminders and location management'
+    },
+    landing: {
+      hero: 'Home inventory made easy!',
+      disastersTitle: 'Disasters happen',
+      disastersDesc: 'Fires, floods, storms. A current inventory helps settle insurance claims faster. Everything is backed up to the cloud.',
+      orgTitle: 'Smart organization',
+      orgDesc: 'Organized by Room, Storage and Sub-storage — just like your home.',
+      addTitle: 'Adding is a breeze',
+      addDesc: 'Snap, add details, save, and you are ready for the next item.',
+      shareTitle: 'Share & collaborate',
+      shareDesc: 'Invite housemates to edit, or share a read‑only public link.',
+      ctaPrimary: 'Start adding',
+      ctaSecondary: 'Learn more'
     },
     spaces: {
       addTitle: 'Add Space',

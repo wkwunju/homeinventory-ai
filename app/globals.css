@@ -151,10 +151,15 @@
     @apply text-slate-800 rounded-full px-4 py-2 font-semibold transition-all duration-200 hover:bg-[#f5f5f5];
     font-size: 14px !important;
   }
+
+  /* (reverted) removed isometric helpers */
 }
 
 /* 移动端响应式优化 */
 @media (max-width: 640px) {
+  .iso-scene { perspective: none; }
+  .iso-floor { transform: none; }
+  .iso-space { transform: none; }
   .mobile-card {
     @apply p-4;
   }
