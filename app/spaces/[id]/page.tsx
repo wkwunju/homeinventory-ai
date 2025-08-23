@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Plus, Home, Grid3X3, Package, Edit, Trash2, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Plus, Home, Grid3X3, Package, Edit, Trash2, ChevronRight, MapPin, Sparkles } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
@@ -303,7 +303,7 @@ export default function SpaceDetailPage() {
       <div className="min-h-screen pb-24">
         <div className="w-full max-w-4xl mx-auto px-4 pt-8">
           {/* 头部 */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-5">
             <Button
               onClick={() => router.back()}
               variant="ghost"
@@ -349,20 +349,12 @@ export default function SpaceDetailPage() {
           </div>
 
           {/* 内容区域 */}
-          <div className={`grid gap-8 grid-cols-1 ${isLocationDetail ? '' : 'lg:grid-cols-3'}`}>
+          <div className={`grid gap-5 grid-cols-1 ${isLocationDetail ? '' : 'lg:grid-cols-3'}`}>
             {/* 左侧：位置列表 */}
             {!isLocationDetail && (
               <Card className="lg:col-span-1 col-span-1">
                 <CardHeader>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <CardTitle className="text-xl text-slate-800">{t('spacesPage.locations')}</CardTitle>
-                    <Link href="/spaces/add">
-                      <Button variant="primary" size="lg" className="h-12 px-6">
-                        <Plus className="w-4 h-4 mr-2" />
-                        {t('spacesPage.addLocation')}
-                      </Button>
-                    </Link>
-                  </div>
+                  <CardTitle className="text-xl text-slate-800">{t('spacesPage.locations')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {locations.length === 0 ? (
@@ -378,7 +370,7 @@ export default function SpaceDetailPage() {
                       </Link>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {/* 查看所有物品选项 */}
                       <div 
                         className={`group relative overflow-hidden rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-lg ${
@@ -391,13 +383,6 @@ export default function SpaceDetailPage() {
                         <div className="p-6">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                              <div className={`flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${
-                                !selectedLocation
-                                  ? 'bg-gradient-to-br from-sky-100 to-blue-100 text-sky-600'
-                                  : 'bg-slate-100 text-slate-600'
-                              }`}>
-                                <Package className="h-7 w-7" />
-                              </div>
                               <div className="flex-1">
                                 <div className="font-semibold text-slate-800 text-lg">{t('spacesPage.viewAllItems')}</div>
                                 <div className="text-slate-500">{t('spacesPage.showAllItems')}</div>
@@ -435,15 +420,6 @@ export default function SpaceDetailPage() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <Link 
-                                  href={`/add?space_id=${location.id}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Button variant="outline" size="sm" className="h-9 px-3">
-                                    <Plus className="h-4 w-4 mr-1" />
-                                    添加物品
-                                  </Button>
-                                </Link>
                                 <Button
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -461,6 +437,25 @@ export default function SpaceDetailPage() {
                           </div>
                         </div>
                       ))}
+                      
+                      {/* 添加位置按钮 */}
+                      <Link href="/spaces/add">
+                        <div className="group relative overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-sky-300 hover:bg-sky-50/80">
+                          <div className="p-6">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 text-sky-600">
+                                  <Plus className="h-7 w-7" />
+                                </div>
+                                <div className="flex-1">
+                                  <div className="font-semibold text-slate-800 text-lg">{t('spacesPage.addLocation')}</div>
+                                  <div className="text-slate-500">添加新的位置</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
                     </div>
                   )}
                 </CardContent>
@@ -501,114 +496,54 @@ export default function SpaceDetailPage() {
                     </Link>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="grid gap-4">
                     {items.map(item => (
-                      <div key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white/80 backdrop-blur-sm p-6 transition-all duration-300 hover:shadow-lg hover:border-slate-300/80 hover:bg-white">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start gap-4 flex-1 min-w-0">
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 flex-shrink-0">
-                              {item.photo_url ? (
-                                <img 
-                                  src={item.photo_url} 
-                                  alt={item.name}
-                                  className="w-14 h-14 object-cover rounded-2xl"
-                                />
-                              ) : (
-                                <Package className="h-7 w-7 text-sky-600" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-slate-800 text-lg truncate">{item.name}</div>
-                              <div className="mt-3 space-y-2">
-                                <div className="flex items-center gap-2 text-sm text-slate-600">
-                                  <span className="font-medium">数量:</span>
-                                  <span className="bg-slate-100 px-2 py-1 rounded-lg">{item.quantity}</span>
+                      <div key={item.id} className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white/90 backdrop-blur-sm p-4 transition-all duration-300 hover:shadow-xl hover:border-sky-300/60 hover:-translate-y-1 shadow-lg shadow-slate-100/50">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="flex-1">
+                              <div className="font-semibold text-slate-800 text-lg mb-2 flex items-center gap-2">
+                                <span className="truncate">{item.name}</span>
+                                {item.category && (
+                                  <span className="inline-flex items-center rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 px-3 py-1 text-xs font-medium text-emerald-700 border border-emerald-200/60">
+                                    {item.category}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex flex-col gap-2 text-sm text-slate-600 mb-2 leading-tight">
+                                <div className="flex items-center gap-2">
+                                  <Package className="h-4 w-4 text-sky-500" />
+                                  <span>数量：{item.quantity}</span>
                                 </div>
                                 {!selectedLocation && (
-                                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                                    <span className="font-medium">位置:</span>
-                                    <span className="text-sky-600 bg-sky-50 px-2 py-1 rounded-lg">{item.spaces.name}</span>
-                                  </div>
-                                )}
-                                {item.category && (
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm text-slate-600 font-medium">分类:</span>
-                                    <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-800">
-                                      {item.category}
-                                    </span>
-                                  </div>
-                                )}
-                                {item.expire_date && (
-                                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                                    <span className="font-medium">过期:</span>
-                                    <span className="text-orange-600 bg-orange-50 px-2 py-1 rounded-lg">{new Date(item.expire_date).toLocaleDateString()}</span>
-                                  </div>
-                                )}
-                                {item.value && (
-                                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                                    <span className="font-medium">价值:</span>
-                                    <span className="text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">¥{item.value}</span>
-                                  </div>
-                                )}
-                                {item.brand && (
-                                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                                    <span className="font-medium">品牌:</span>
-                                    <span className="text-purple-600 bg-purple-50 px-2 py-1 rounded-lg">{item.brand}</span>
-                                  </div>
-                                )}
-                                {item.condition && (
-                                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                                    <span className="font-medium">状态:</span>
-                                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                                      item.condition === '全新' ? 'bg-emerald-100 text-emerald-800' :
-                                      item.condition === '良好' ? 'bg-sky-100 text-sky-800' :
-                                      item.condition === '一般' ? 'bg-yellow-100 text-yellow-800' :
-                                      item.condition === '需要维修' ? 'bg-orange-100 text-orange-800' :
-                                      'bg-red-100 text-red-800'
-                                    }`}>
-                                      {item.condition}
-                                    </span>
-                                  </div>
-                                )}
-                                {item.priority && item.priority !== 'normal' && (
-                                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                                    <span className="font-medium">优先级:</span>
-                                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                                      item.priority === 'urgent' ? 'bg-red-100 text-red-800' :
-                                      item.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                                      'bg-sky-100 text-sky-800'
-                                    }`}>
-                                      {item.priority === 'urgent' ? '紧急' :
-                                       item.priority === 'high' ? '高' :
-                                       item.priority === 'low' ? '低' : '普通'}
-                                    </span>
-                                  </div>
-                                )}
-                                {item.notes && (
-                                  <div className="flex items-start gap-2 text-sm text-slate-600">
-                                    <span className="font-medium mt-0.5">备注:</span>
-                                    <span className="text-slate-700 bg-slate-50 px-2 py-1 rounded-lg">{item.notes}</span>
+                                    <MapPin className="h-4 w-4 text-emerald-500" />
+                                    <span className="whitespace-normal">位置：{item.spaces?.name || '未指定'}</span>
                                   </div>
                                 )}
                               </div>
+                              {item.expire_date && (
+                                <div className="flex items-center gap-1 text-sm text-amber-600">
+                                  <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
+                                  过期: {new Date(item.expire_date).toLocaleDateString()}
+                                </div>
+                              )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-4">
-                            <Link href={`/item/${item.id}`}>
-                              <Button variant="outline" size="sm" className="h-9 px-3">
-                                <Edit className="h-4 w-4 mr-1" />
-                                编辑
-                              </Button>
-                            </Link>
-                            <Button
-                              onClick={() => handleDeleteItem(item.id)}
-                              variant="destructive"
-                              size="sm"
-                              className="h-9 px-3"
+                          <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 w-full sm:w-auto mt-2 sm:mt-0">
+                            <Link 
+                              href={`/item/${item.id}`}
+                              className="modern-button-ghost inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 sm:min-w-[120px] whitespace-nowrap shrink-0"
                             >
-                              <Trash2 className="h-4 w-4 mr-1" />
+                              查看详情
+                              <Sparkles className="h-4 w-4" />
+                            </Link>
+                            <button
+                              onClick={() => handleDeleteItem(item.id)}
+                              className="modern-button-secondary inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 sm:min-w-[100px] whitespace-nowrap shrink-0 text-red-600 hover:bg-red-50"
+                            >
                               删除
-                            </Button>
+                            </button>
                           </div>
                         </div>
                       </div>

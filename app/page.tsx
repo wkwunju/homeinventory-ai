@@ -234,8 +234,8 @@ export default function HomePage() {
     }
 
     return (
-      <div className="grid gap-5">
-        {items.map(item => (
+                    <div className="grid gap-4">
+                {items.map(item => (
           <div key={item.id} className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white/90 backdrop-blur-sm p-4 transition-all duration-300 hover:shadow-xl hover:border-sky-300/60 hover:-translate-y-1 shadow-lg shadow-slate-100/50">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3 w-full">
@@ -495,7 +495,7 @@ export default function HomePage() {
       <div className="min-h-screen pb-24">
         <div className="w-full max-w-5xl mx-auto px-4 pt-8">
           {/* 头部 */}
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center justify-between mb-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-500 flex items-center justify-center shadow-lg">
@@ -511,7 +511,7 @@ export default function HomePage() {
           </div>
 
           {/* 概览卡片 + landing style intro */}
-          <div className="mb-8">
+          <div className="mb-5">
             <Card className="rounded-3xl border border-[#eaeaea] shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
               <CardContent className="p-6">
                 <div className="space-y-2 text-slate-700 leading-relaxed">
@@ -553,7 +553,7 @@ export default function HomePage() {
           </div>
 
           {/* Toggle + content header merged */}
-          <div className="mb-10 flex items-center justify-between gap-4 flex-wrap">
+          <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
             <div className="inline-flex rounded-2xl bg-white/80 backdrop-blur-sm p-1.5 shadow-xl border border-white/40 shadow-sky-100/50 overflow-x-auto">
               <button
                 onClick={() => handleTabChange('items')}

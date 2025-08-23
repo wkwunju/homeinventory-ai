@@ -187,7 +187,7 @@ export default function ItemDetailPage() {
       <div className="min-h-screen pb-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* 头部 */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" className="h-12 w-12" onClick={() => router.back()}>
                 <ArrowLeft className="w-5 h-5" />
@@ -209,9 +209,9 @@ export default function ItemDetailPage() {
           {/* 表单 */}
           <Card>
             <CardContent className="p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-[14pt]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-[14pt]">
                 {/* 左侧：基本信息 */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <h2 className="font-semibold text-slate-800 mb-2 text-[14pt]">基本信息</h2>
 
                   <div>
@@ -251,7 +251,7 @@ export default function ItemDetailPage() {
                 </div>
 
                 {/* 右侧：详细信息 */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <h2 className="font-semibold text-slate-800 mb-2 text-[14pt]">详细信息</h2>
 
                   <div>

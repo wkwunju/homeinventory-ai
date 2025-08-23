@@ -36,7 +36,7 @@ export default function SettingsPage() {
       <div className="min-h-screen pb-24">
         <div className="w-full max-w-2xl mx-auto px-4 pt-8">
           {/* 头部 */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-5">
             <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-12 w-12">
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -47,7 +47,7 @@ export default function SettingsPage() {
           </div>
 
           {/* 设置选项 */}
-          <div className="space-y-8">
+          <div className="space-y-5">
             {/* 语言设置 */}
             <Card>
               <CardHeader>

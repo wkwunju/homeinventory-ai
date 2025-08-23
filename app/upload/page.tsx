@@ -716,7 +716,7 @@ export default function UploadPage() {
       <div className="min-h-screen pb-24">
         <div className="w-full max-w-2xl mx-auto px-4 pt-8">
           {/* 头部 */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-5">
             <h1 className="font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2 text-[20pt]">
               {t('upload.title')}
             </h1>
@@ -726,7 +726,7 @@ export default function UploadPage() {
           </div>
 
           {/* 上传区域 */}
-          <Card className="mb-8 text-[14pt]">
+          <Card className="mb-5 text-[14pt]">
             <CardContent className="p-6">
               <div className="text-center">
                 {!selectedFile ? (

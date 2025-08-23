@@ -85,7 +85,7 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <Card>
-            <CardContent className="p-10 text-center space-y-4">
+            <CardContent className="p-8 text-center space-y-3">
               <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
                 <CheckCircle className="w-10 h-10 text-emerald-600" />
               </div>
@@ -102,7 +102,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-5">
           <Button variant="ghost" size="icon" className="h-12 w-12" onClick={() => router.back()}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -110,8 +110,8 @@ export default function RegisterPage() {
         </div>
 
         <Card>
-          <CardContent className="p-6 space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
+          <CardContent className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="rounded-xl border border-amber-200/70 bg-amber-50/70 p-3 text-sm text-amber-800">
                 Beta 测试中：需要邀请码注册（限 10 位用户）
               </div>

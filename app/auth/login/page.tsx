@@ -63,7 +63,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen">
       <div className="w-full max-w-6xl mx-auto px-4 pt-16 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           {/* Left: Withings-style onboarding card */}
           <div>
             <div className="rounded-3xl overflow-hidden bg-white/90 border border-white/40 shadow-xl">
@@ -96,8 +96,8 @@ export default function LoginPage() {
           {/* Right: login form */}
           <div className="w-full max-w-md lg:ml-auto">
             <Card className="border-white/60 shadow-[0_12px_40px_rgba(99,102,241,0.12)] bg-white/95 backdrop-blur">
-              <CardContent className="p-6 space-y-6">
-                <form onSubmit={handleSubmit} className="space-y-5">
+              <CardContent className="p-6 space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block font-semibold text-slate-700 mb-3">{t('auth.email')}</label>
                     <div className="relative">

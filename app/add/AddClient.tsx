@@ -178,7 +178,7 @@ export default function AddItemClientPage() {
     <AuthGuard>
       <div className="min-h-screen pb-24">
         <div className="w-full max-w-4xl mx-auto px-4 pt-8">
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-5">
             <Button onClick={handleBack} variant="ghost" size="icon" className="h-12 w-12">
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -197,7 +197,7 @@ export default function AddItemClientPage() {
           </div>
 
           {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 mb-8 text-sm text-slate-500">
+          <div className="flex items-center gap-2 mb-5 text-sm text-slate-500">
             <span className={`${!selectedRoom ? 'text-sky-600 font-medium' : ''}`}>{t('add.selectRoom')}</span>
             {selectedRoom && (
               <>
@@ -213,7 +213,7 @@ export default function AddItemClientPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             {/* Left: Space Selection */}
             <div className="lg:col-span-1">
               <Card className="h-fit">
