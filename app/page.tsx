@@ -553,30 +553,28 @@ export default function HomePage() {
           </div>
 
           {/* Toggle + content header merged */}
-          <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
-            <div className="inline-flex rounded-2xl bg-white/80 backdrop-blur-sm p-1.5 shadow-xl border border-white/40 shadow-sky-100/50 overflow-x-auto">
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <div className="flex gap-2 overflow-x-auto">
               <button
                 onClick={() => handleTabChange('items')}
-                className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                className={`px-6 py-3 font-medium transition-all duration-200 rounded-xl whitespace-nowrap ${
                   activeTab === 'items'
-                    ? 'bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] text-white shadow-lg'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50/80'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'bg-gray-200 text-slate-500 hover:text-slate-700 hover:bg-gray-300'
                 }`}
                 aria-label={t('home.manageItems')}
               >
-                <Package className="w-6 h-6" />
                 {t('home.myItems')}
               </button>
               <button
                 onClick={() => handleTabChange('spaces')}
-                className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                className={`px-6 py-3 font-medium transition-all duration-200 rounded-xl whitespace-nowrap ${
                   activeTab === 'spaces'
-                    ? 'bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] text-white shadow-lg'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50/80'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'bg-gray-200 text-slate-500 hover:text-slate-700 hover:bg-gray-300'
                 }`}
                 aria-label={t('home.manageSpaces')}
               >
-                <span className="text-2xl">🏠</span>
                 {t('home.mySpaces')}
               </button>
             </div>
