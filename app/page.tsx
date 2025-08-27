@@ -449,13 +449,13 @@ export default function HomePage() {
 
           {/* Toggle + content header merged */}
           <div className="mb-6 flex items-center justify-between gap-4">
-            <div className="flex gap-2 overflow-x-auto">
+            <div className="flex gap-3 overflow-x-auto">
               <button
                 onClick={() => handleTabChange('items')}
-                className={`px-6 py-3 font-medium transition-all duration-200 rounded-xl whitespace-nowrap ${
+                className={`px-6 py-2.5 font-medium transition-all duration-200 rounded-full whitespace-nowrap ${
                   activeTab === 'items'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'bg-gray-200 text-slate-500 hover:text-slate-700 hover:bg-gray-300'
+                    ? 'bg-black text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
                 aria-label={t('home.manageItems')}
               >
@@ -463,10 +463,10 @@ export default function HomePage() {
               </button>
               <button
                 onClick={() => handleTabChange('spaces')}
-                className={`px-6 py-3 font-medium transition-all duration-200 rounded-xl whitespace-nowrap ${
+                className={`px-6 py-2.5 font-medium transition-all duration-200 rounded-full whitespace-nowrap ${
                   activeTab === 'spaces'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'bg-gray-200 text-slate-500 hover:text-slate-700 hover:bg-gray-300'
+                    ? 'bg-black text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
                 aria-label={t('home.manageSpaces')}
               >
