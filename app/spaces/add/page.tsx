@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
@@ -65,7 +65,7 @@ const getCommonFurniture = (language: 'zh' | 'en') => {
   return result
 }
 
-export default function AddSpacePage() {
+function AddSpacePageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
@@ -584,5 +584,18 @@ export default function AddSpacePage() {
         )}
       </div>
     </AuthGuard>
+  )
+}
+
+export default function AddSpacePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    </div>}>
+      <AddSpacePageContent />
+    </Suspense>
   )
 } 

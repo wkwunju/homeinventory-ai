@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
@@ -66,7 +66,7 @@ interface ConvertedItem extends RecognizedItem {
 interface RoomOption { id: string; name: string; icon?: string; description?: string }
 interface LocationOption { id: string; name: string; icon?: string; description?: string; parent_id: string }
 
-export default function UploadPage() {
+function UploadPageContent() {
   const { user } = useAuth()
   const { addItem } = useItemsCache()
   const searchParams = useSearchParams()
@@ -1219,5 +1219,18 @@ export default function UploadPage() {
 
       </div>
     </AuthGuard>
+  )
+}
+
+export default function UploadPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    </div>}>
+      <UploadPageContent />
+    </Suspense>
   )
 } 
