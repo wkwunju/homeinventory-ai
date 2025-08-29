@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
 import { getDefaultIconByLevel } from '@/lib/icons'
@@ -69,6 +69,7 @@ interface LocationOption { id: string; name: string; icon?: string; description?
 export default function UploadPage() {
   const { user } = useAuth()
   const { addItem } = useItemsCache()
+  const searchParams = useSearchParams()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [recognizedItems, setRecognizedItems] = useState<RecognizedItem[]>([])
@@ -209,6 +210,29 @@ export default function UploadPage() {
 
   // 初始化拉取
   useEffect(() => { fetchUserSpaces() }, [])
+
+  // Handle preselected location from URL params
+  useEffect(() => {
+    const locationId = searchParams.get('location_id')
+    const locationName = searchParams.get('location_name')
+    
+    if (locationId && locationName && userSpacesFlat.length > 0) {
+      // Find the location and its parent room
+      const location = userSpacesFlat.find(s => s.id === locationId && s.level === 2)
+      if (location) {
+        const room = userSpacesFlat.find(s => s.id === location.parent_id && s.level === 1)
+        if (room) {
+          // Set global room and location for one-space mode
+          setGlobalRoomId(room.id)
+          setGlobalRoomName(room.name)
+          setGlobalLocationId(location.id)
+          setGlobalLocationName(location.name)
+          // Ensure we're in one-space mode
+          setSaveMode('one-space')
+        }
+      }
+    }
+  }, [searchParams, userSpacesFlat])
 
   // 创建房间和位置
   const createRoom = async (roomData: { name: string; icon: string; description: string }) => {

@@ -200,7 +200,7 @@ const translations = {
     share: {
       button: '分享',
       modalTitle: '分享我的清单',
-      modalText: '我在 HomeInventory AI 有 {items} 件物品，总价值约 ¥{worth}。来看看你的吧！',
+      modalText: '我在 MaisonStock 有 {items} 件物品，总价值约 ¥{worth}。来看看你的吧！',
       saveImage: '保存图片',
       shareWebsite: '分享网站',
       cancel: '取消'
@@ -487,7 +487,7 @@ const translations = {
     share: {
       button: 'Share',
       modalTitle: 'Share my list',
-      modalText: 'I have {items} items in HomeInventory AI, worth about ¥{worth}. Check yours!',
+      modalText: 'I have {items} items in MaisonStock, worth about ¥{worth}. Check yours!',
       saveImage: 'Save Image',
       shareWebsite: 'Share Website',
       cancel: 'Cancel'

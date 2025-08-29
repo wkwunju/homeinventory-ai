@@ -1,10 +1,10 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.homeinventory.app',
-  appName: 'HomeInventory',
+  appId: 'com.maisonstock.app',
+  appName: 'MaisonStock',
   webDir: '.next',
-  server: { url: 'https://homeinventory-ai.vercel.app' } // <-- replace with your URL
+  server: { url: 'https://maisonstock.vercel.app' } // <-- replace with your URL
 };
 
 export default config;

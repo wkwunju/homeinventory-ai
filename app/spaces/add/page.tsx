@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
@@ -67,6 +67,7 @@ const getCommonFurniture = (language: 'zh' | 'en') => {
 
 export default function AddSpacePage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user } = useAuth()
   const { language, t } = useLanguage()
   const [loading, setLoading] = useState(false)
@@ -103,6 +104,35 @@ export default function AddSpacePage() {
   useEffect(() => {
     fetchSpaces()
   }, [])
+
+  // Handle preselected room from URL params
+  useEffect(() => {
+    const roomId = searchParams.get('room_id')
+    const roomName = searchParams.get('room_name')
+    
+    if (roomId && roomName && spaces.length > 0) {
+      // Find the room in the spaces list
+      const room = spaces.find(s => s.id === roomId && s.level === 1)
+      if (room) {
+        // Preselect the room and skip to furniture step
+        setSelectedRoom({ 
+          id: room.id, 
+          name: room.name,
+          originalName: room.name 
+        })
+        setStep('furniture')
+        // Reset form data for furniture creation
+        setFormData({
+          name: '',
+          description: '',
+          parent_id: room.id,
+          level: 2,
+          icon: '📦',
+          preset_id: ''
+        })
+      }
+    }
+  }, [searchParams, spaces])
 
   const handleRoomSelect = (roomId: string) => {
     console.log('选择房间ID:', roomId)

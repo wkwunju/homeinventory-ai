@@ -314,4 +314,4 @@ CREATE TRIGGER update_items_updated_at
 
 ---
 
-🎉 **部署完成！** 你的 HomeInventory AI 应用现在支持完整的空间和物品管理系统。 
+🎉 **部署完成！** 你的 MaisonStock 应用现在支持完整的空间和物品管理系统。 

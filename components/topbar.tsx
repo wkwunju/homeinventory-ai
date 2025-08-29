@@ -23,9 +23,10 @@ export default function TopBar() {
       <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
         <button
           onClick={() => router.push('/')}
-          className="text-lg font-semibold bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] bg-clip-text text-transparent hover:opacity-90"
+          className="text-xl font-bold text-black hover:text-gray-800 transition-colors focus:outline-none focus:ring-0 border-0 bg-transparent"
+          style={{ boxShadow: 'none', outline: 'none' }}
         >
-          HomeInventory
+          MaisonStock
         </button>
 
         <div className="relative">

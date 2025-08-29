@@ -183,7 +183,7 @@ export default function AddItemClientPage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold tracking-tight text-black">
                 {t('add.title')}
               </h1>
               <p className="text-slate-600 text-lg mt-2">
@@ -231,9 +231,12 @@ export default function AddItemClientPage() {
                         <div className="text-center py-8">
                           <span className="text-4xl text-slate-300 mx-auto mb-3 block">🏠</span>
                           <p className="text-slate-500 mb-4">{t('add.noRooms')}</p>
-                          <Button onClick={() => router.push('/spaces/add')} variant="primary" className="w-full">
+                          <button 
+                            onClick={() => router.push('/spaces/add')} 
+                            className="w-full bg-black text-white rounded-xl px-4 py-3 font-medium hover:bg-gray-800 transition-all"
+                          >
                             {t('add.createFirstRoom')}
-                          </Button>
+                          </button>
                         </div>
                       ) : (
                         <div className="space-y-3">
@@ -414,14 +417,21 @@ export default function AddItemClientPage() {
                         ))}
                       </div>
 
-                      <Button onClick={addNewItem} variant="outline" className="w-full p-6 border-2 border-dashed border-slate-300/60 rounded-2xl text-slate-500 hover:border-sky-300/80 hover:text-sky-600 transition-all duration-300 flex items-center justify-center gap-3 h-16">
+                      <button 
+                        onClick={addNewItem} 
+                        className="w-full p-6 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-black hover:text-black transition-all duration-300 flex items-center justify-center gap-3 h-16 bg-white hover:bg-gray-50"
+                      >
                         <Plus className="w-6 h-6" />
                         {t('add.addMoreItems')}
-                      </Button>
+                      </button>
 
-                      <Button onClick={handleSubmit} disabled={loading || items.length === 0} variant="primary" size="lg" className="w-full h-16 text-lg">
+                      <button 
+                        onClick={handleSubmit} 
+                        disabled={loading || items.length === 0} 
+                        className="w-full h-16 text-lg bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                         {loading ? t('common.loading') : t('add.addItemsCount', { count: items.length })}
-                      </Button>
+                      </button>
                     </div>
                   )}
                 </CardContent>

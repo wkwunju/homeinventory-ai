@@ -92,4 +92,4 @@ npm run dev
 
 ---
 
-🎉 **完成配置后，你的 HomeInventory AI 就可以正常使用了！** 
+🎉 **完成配置后，你的 MaisonStock 就可以正常使用了！** 

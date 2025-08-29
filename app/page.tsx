@@ -58,7 +58,7 @@ export default function HomePage() {
   const [allSpaces, setAllSpaces] = useState<Space[]>([])
   const [allItems, setAllItems] = useState<Item[]>([])
   const [showAddItemModal, setShowAddItemModal] = useState(false)
-  const [showAddSpaceModal, setShowAddSpaceModal] = useState(false)
+
   const [roomsCount, setRoomsCount] = useState(0)
 
   // 获取空间数据
@@ -265,16 +265,16 @@ export default function HomePage() {
                 )}
               </div>
               <div className="flex flex-col gap-2 shrink-0">
-                <Link 
+                                <Link
                   href={`/item/${item.id}`}
-                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:text-blue-700 transition-colors"
                   title="查看详情"
                 >
                   <Eye className="h-4 w-4" />
                 </Link>
                 <button
                   onClick={() => handleDeleteHomeItem(item.id)}
-                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-red-600 hover:text-red-700 transition-colors"
                   title="删除"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -459,12 +459,20 @@ export default function HomePage() {
               </button>
             </div>
 
-            <button
-              onClick={() => activeTab === 'items' ? setShowAddItemModal(true) : setShowAddSpaceModal(true)}
-              className="inline-flex items-center justify-center w-12 h-12 rounded-full text-white bg-black hover:bg-gray-800 transition-all"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
+            {activeTab === 'items' ? (
+              <button 
+                onClick={() => setShowAddItemModal(true)}
+                className="inline-flex items-center justify-center w-12 h-12 rounded-full text-white bg-black hover:bg-gray-800 transition-all"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            ) : (
+              <Link href="/spaces/add">
+                <button className="inline-flex items-center justify-center w-12 h-12 rounded-full text-white bg-black hover:bg-gray-800 transition-all">
+                  <Plus className="w-5 h-5" />
+                </button>
+              </Link>
+            )}
           </div>
 
           {/* Content */}
@@ -586,10 +594,12 @@ export default function HomePage() {
                           </div>
                           <h3 className="text-xl font-semibold text-slate-800 mb-3">{t('home.noSpaces')}</h3>
                           <p className="text-slate-600 mb-8 text-lg">{t('home.createFirstSpace')}</p>
-                          <button onClick={() => setShowAddSpaceModal(true)} className="modern-button-primary inline-flex items-center gap-3 px-6 py-3">
-                            <Plus className="h-5 w-5" />
-                            创建第一个空间
-                          </button>
+                          <Link href="/spaces/add">
+                            <button className="modern-button-primary inline-flex items-center gap-3 px-6 py-3">
+                              <Plus className="h-5 w-5" />
+                              创建第一个空间
+                            </button>
+                          </Link>
                         </div>
                       ) : (
                         <div className="space-y-6">
@@ -666,48 +676,42 @@ export default function HomePage() {
         </div>
       )}
 
-      {showAddSpaceModal && (
-        <div className="mobile-modal" onClick={() => setShowAddSpaceModal(false)}>
-          <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-semibold text-slate-800 mb-4">空间管理</h3>
-            <p className="text-slate-600 mb-6">前往空间管理页面添加房间与位置</p>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => setShowAddSpaceModal(false)} className="modern-button-secondary px-5 py-3">稍后</button>
-              <Link href="/spaces/add">
-                <button className="modern-button-primary px-5 py-3">前往管理</button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+
       {showShareModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowShareModal(false)}>
-          <div className="w-full max-w-2xl bg-white rounded-3xl border border-white/40 shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {/* Body only (title removed) */}
             <div className="p-8 space-y-6">
-              <div className="flex items-center gap-3 text-slate-800">
-                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-100 to-pink-100 flex items-center justify-center">
-                  <Crown className="w-6 h-6 text-amber-600" />
-                </div>
-                <p className="text-[20pt] leading-snug">
-                  我正在使用 HomeInventory AI 管理我的“宝藏”，总价值约 ¥{totalWorth.toFixed(2)}，来看看你的吧！
+              <div className="text-center">
+                <p className="text-[20pt] leading-snug text-gray-900 font-medium">
+                  我正在使用 MaisonStock 管理我的"宝藏"，总价值约 ¥{totalWorth.toFixed(2)}，来看看你的吧！
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-5">
-                <div className="rounded-2xl border border-sky-200/60 bg-sky-50/60 p-6">
-                  <div className="text-slate-900 font-semibold text-[20pt]">{totalItems}</div>
-                  <div className="text-slate-600">物品</div>
+                <div className="rounded-2xl bg-gray-50 p-6">
+                  <div className="text-gray-900 font-semibold text-[20pt]">{totalItems}</div>
+                  <div className="text-gray-600">物品</div>
                 </div>
-                <div className="rounded-2xl border border-violet-200/60 bg-violet-50/60 p-6">
-                  <div className="text-slate-900 font-semibold text-[20pt]">¥{totalWorth.toFixed(2)}</div>
-                  <div className="text-slate-600">总价值</div>
+                <div className="rounded-2xl bg-gray-50 p-6">
+                  <div className="text-gray-900 font-semibold text-[20pt]">¥{totalWorth.toFixed(2)}</div>
+                  <div className="text-gray-600">总价值</div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3 justify-end">
-                <button onClick={() => setShowShareModal(false)} className="modern-button-secondary px-6 py-3">{t('share.cancel')}</button>
-                <button onClick={handleShareWebsite} className="modern-button-primary px-6 py-3">{t('share.shareWebsite')}</button>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <button 
+                  onClick={() => setShowShareModal(false)} 
+                  className="px-8 py-3 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition-colors"
+                >
+                  {t('share.cancel')}
+                </button>
+                <button 
+                  onClick={handleShareWebsite} 
+                  className="px-8 py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
+                >
+                  {t('share.shareWebsite')}
+                </button>
               </div>
             </div>
           </div>

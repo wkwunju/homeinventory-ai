@@ -184,44 +184,40 @@ export default function ItemDetailPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen pb-24">
+      <div className="min-h-screen pb-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* 头部 */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="h-12 w-12" onClick={() => router.back()}>
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">编辑物品</h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button onClick={handleSubmit} disabled={saving} variant="primary" className="h-12 px-6">
-                <Save className="w-4 h-4 mr-2" />
-                {saving ? '保存中...' : '保存'}
-              </Button>
-              <Button onClick={handleDelete} variant="destructive" className="h-12 px-6">
-                <Trash2 className="w-4 h-4 mr-2" />
-                删除
-              </Button>
-            </div>
+          <div className="flex items-center gap-4 mb-8">
+            <button 
+              onClick={() => router.back()}
+              className="h-12 w-12 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700" />
+            </button>
+            <h1 className="text-3xl font-bold tracking-tight text-black">编辑物品</h1>
           </div>
 
           {/* 表单 */}
-          <Card>
-            <CardContent className="p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-[14pt]">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+            <div className="p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* 左侧：基本信息 */}
-                <div className="space-y-4">
-                  <h2 className="font-semibold text-slate-800 mb-2 text-[14pt]">基本信息</h2>
+                <div className="space-y-6">
+                  <h2 className="font-semibold text-gray-900 mb-4 text-lg">基本信息</h2>
 
                   <div>
-                    <Input variant="underline" className="h-11" type="text" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} placeholder="物品名称 *" required />
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => handleChange('name', e.target.value)}
+                      placeholder="物品名称 *"
+                      required
+                      className="h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                    />
                   </div>
 
                   <div>
-                    <Input
-                      variant="underline"
-                      className="h-11"
+                    <input
                       type="number"
                       min="1"
                       value={(formData.quantity as number | '').toString()}
@@ -230,39 +226,72 @@ export default function ItemDetailPage() {
                         handleChange('quantity', v === '' ? '' : (parseInt(v) || ''))
                       }}
                       placeholder="数量 *"
+                      className="h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
                     />
                   </div>
 
                   <div>
-                    <Input variant="underline" className="h-11" type="text" value={formData.category} onChange={(e) => handleChange('category', e.target.value)} placeholder="分类 *" />
+                    <input
+                      type="text"
+                      value={formData.category}
+                      onChange={(e) => handleChange('category', e.target.value)}
+                      placeholder="分类 *"
+                      className="h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                    />
                   </div>
 
                   <div>
-                    <Input variant="underline" className="h-11" type="date" value={formData.expire_date} onChange={(e) => handleChange('expire_date', e.target.value)} placeholder="过期日期" />
+                    <input
+                      type="date"
+                      value={formData.expire_date}
+                      onChange={(e) => handleChange('expire_date', e.target.value)}
+                      placeholder="过期日期"
+                      className="h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                    />
                   </div>
 
                   <div>
-                    <Input variant="underline" className="h-11" type="number" step="0.01" min="0" value={formData.value ?? ''} onChange={(e) => handleChange('value', e.target.value ? parseFloat(e.target.value) : undefined)} placeholder="价值（元）" />
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.value ?? ''}
+                      onChange={(e) => handleChange('value', e.target.value ? parseFloat(e.target.value) : undefined)}
+                      placeholder="价值（元）"
+                      className="h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                    />
                   </div>
 
                   <div>
-                    <Input variant="underline" className="h-11" type="text" value={formData.brand} onChange={(e) => handleChange('brand', e.target.value)} placeholder="品牌" />
+                    <input
+                      type="text"
+                      value={formData.brand}
+                      onChange={(e) => handleChange('brand', e.target.value)}
+                      placeholder="品牌"
+                      className="h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                    />
                   </div>
                 </div>
 
                 {/* 右侧：详细信息 */}
-                <div className="space-y-4">
-                  <h2 className="font-semibold text-slate-800 mb-2 text-[14pt]">详细信息</h2>
+                <div className="space-y-6">
+                  <h2 className="font-semibold text-gray-900 mb-4 text-lg">详细信息</h2>
 
                   <div>
-                    <Input variant="underline" className="h-11" type="date" value={formData.purchase_date} onChange={(e) => handleChange('purchase_date', e.target.value)} placeholder="购入日期" />
+                    <input
+                      type="date"
+                      value={formData.purchase_date}
+                      onChange={(e) => handleChange('purchase_date', e.target.value)}
+                      placeholder="购入日期"
+                      className="h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                    />
                   </div>
 
                   <div>
                     <select
                       value={formData.purchase_source}
                       onChange={(e) => handleChange('purchase_source', e.target.value)}
-                      className="flex h-11 w-full bg-transparent border-0 border-b border-[#eaeaea] rounded-none px-0 py-3 text-[14px] focus:outline-none"
+                      className="flex h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
                     >
                       <option value="">购入来源</option>
                       <option value="淘宝">淘宝</option>
@@ -278,7 +307,7 @@ export default function ItemDetailPage() {
                     <select
                       value={formData.condition}
                       onChange={(e) => handleChange('condition', e.target.value)}
-                      className="flex h-11 w-full bg-transparent border-0 border-b border-[#eaeaea] rounded-none px-0 py-3 text-[14px] focus:outline-none"
+                      className="flex h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
                     >
                       <option value="">物品状态</option>
                       <option value="全新">全新</option>
@@ -293,7 +322,7 @@ export default function ItemDetailPage() {
                     <select
                       value={formData.priority}
                       onChange={(e) => handleChange('priority', e.target.value)}
-                      className="flex h-11 w-full bg-transparent border-0 border-b border-[#eaeaea] rounded-none px-0 py-3 text-[14px] focus:outline-none"
+                      className="flex h-12 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
                     >
                       <option value="low">优先级 - 低</option>
                       <option value="normal">优先级 - 普通</option>
@@ -304,26 +333,30 @@ export default function ItemDetailPage() {
 
                   {/* 图片上传 */}
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-3">物品图片</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-3">物品图片</label>
                     <div className="space-y-3">
                       {formData.photo_url ? (
                         <div className="relative">
-                          <img src={formData.photo_url} alt="物品图片" className="w-full h-40 object-cover rounded-2xl border border-slate-200/60" />
-                          <Button type="button" onClick={() => handleChange('photo_url', '')} variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8">
+                          <img src={formData.photo_url} alt="物品图片" className="w-full h-40 object-cover rounded-2xl border border-gray-200" />
+                          <button 
+                            type="button" 
+                            onClick={() => handleChange('photo_url', '')} 
+                            className="absolute top-2 right-2 h-8 w-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                          >
                             <Trash2 className="w-4 h-4" />
-                          </Button>
+                          </button>
                         </div>
                       ) : (
-                        <div className="border-2 border-dashed border-slate-300/60 rounded-2xl p-6 text-center hover:border-sky-300/80 transition-colors">
+                        <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-black transition-colors">
                           <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="photo-upload" />
                           <label htmlFor="photo-upload" className="cursor-pointer">
                             <div className="flex flex-col items-center gap-2">
-                              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
-                                <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-slate-700">点击上传图片</p>
-                                <p className="text-xs text-slate-500">支持 JPG、PNG 格式，最大 5MB</p>
+                                <p className="text-sm font-medium text-gray-900">点击上传图片</p>
+                                <p className="text-xs text-gray-500">支持 JPG、PNG 格式，最大 5MB</p>
                               </div>
                             </div>
                           </label>
@@ -334,26 +367,53 @@ export default function ItemDetailPage() {
 
                   {/* 备注 */}
                   <div>
-                    <Textarea variant="underline" value={formData.notes} onChange={(e) => handleChange('notes', e.target.value)} rows={4} placeholder="备注" />
+                    <textarea
+                      value={formData.notes}
+                      onChange={(e) => handleChange('notes', e.target.value)}
+                      rows={4}
+                      placeholder="备注"
+                      className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors resize-none"
+                    />
                   </div>
                 </div>
               </div>
 
               {/* 物品位置信息 */}
-              <div className="mt-8 pt-8 border-t border-slate-200/60">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">位置信息</h3>
-                <div className="bg-slate-50/80 rounded-2xl p-4">
+              <div className="mt-8 pt-8 border-t border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">位置信息</h3>
+                <div className="bg-gray-50 rounded-2xl p-4">
                   <div className="flex items-center gap-3">
-                    <Package className="w-5 h-5 text-slate-500" />
+                    <Package className="w-5 h-5 text-gray-500" />
                     <div>
-                      <p className="text-sm text-slate-600">当前位置</p>
-                      <p className="font-medium text-slate-800">{item.spaces.name}</p>
+                      <p className="text-sm text-gray-600">当前位置</p>
+                      <p className="font-medium text-gray-900">{item.spaces.name}</p>
                     </div>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* 操作按钮 */}
+              <div className="mt-8 pt-8 border-t border-gray-200">
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={handleSubmit} 
+                    disabled={saving} 
+                    className="flex-1 h-12 px-6 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    {saving ? '保存中...' : '保存'}
+                  </button>
+                  <button 
+                    onClick={handleDelete} 
+                    className="h-12 px-6 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    删除
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </AuthGuard>

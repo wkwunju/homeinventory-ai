@@ -1,4 +1,4 @@
-# 📦 HomeInventory AI - 智能家庭物品管理
+# 📦 MaisonStock - 智能家庭物品管理
 
 一款基于 AI 图像识别的智能家庭物品管理应用，用户可以通过拍照上传物品架或收纳空间的照片，系统自动识别照片中的物品种类，记录到库存中，并支持分类、保质期提醒、物品位置管理等功能。
 
@@ -35,7 +35,7 @@
 ### 1. 克隆项目
 ```bash
 git clone <repository-url>
-cd homeinventory-ai
+cd maisonstock
 ```
 
 ### 2. 安装依赖
@@ -144,4 +144,4 @@ MIT License
 
 ---
 
-**HomeInventory AI** - 让家庭物品管理变得简单智能 🏠✨ 
+**MaisonStock** - 让家庭物品管理变得简单智能 🏠✨ 

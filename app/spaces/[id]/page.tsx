@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Plus, Home, Grid3X3, Package, Edit, Trash2, ChevronRight, MapPin, Sparkles } from 'lucide-react'
+import { ArrowLeft, Plus, Home, Grid3X3, Package, Edit, Trash2, ChevronRight, MapPin, Sparkles, Eye, Image as ImageIcon, Edit3 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
@@ -55,6 +55,7 @@ export default function SpaceDetailPage() {
   const [items, setItems] = useState<Item[]>([])
   const [selectedLocation, setSelectedLocation] = useState<Space | null>(null)
   const [isLocationDetail, setIsLocationDetail] = useState(false)
+  const [showAddItemModal, setShowAddItemModal] = useState(false)
 
   const spaceId = params.id as string
   const locationParam = searchParams.get('location')
@@ -263,11 +264,11 @@ export default function SpaceDetailPage() {
   if (loading) {
     return (
       <AuthGuard>
-        <div className="min-h-screen pb-24">
+        <div className="min-h-screen pb-24 bg-white">
           <div className="w-full max-w-4xl mx-auto px-4 pt-8">
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mx-auto mb-4"></div>
-              <p className="text-slate-500">加载中...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+              <p className="text-gray-500">加载中...</p>
             </div>
           </div>
         </div>
@@ -278,19 +279,18 @@ export default function SpaceDetailPage() {
   if (!room) {
     return (
       <AuthGuard>
-        <div className="min-h-screen pb-24">
+        <div className="min-h-screen pb-24 bg-white">
           <div className="w-full max-w-4xl mx-auto px-4 pt-8">
             <div className="text-center py-12">
-              <Home className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2 text-slate-800">房间不存在</h2>
-              <p className="text-slate-500 mb-6">该房间可能已被删除</p>
-              <Button
+              <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2 text-gray-900">房间不存在</h2>
+              <p className="text-gray-500 mb-6">该房间可能已被删除</p>
+              <button
                 onClick={() => router.back()}
-                variant="primary"
-                size="lg"
+                className="h-12 px-6 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors"
               >
                 返回
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -300,20 +300,18 @@ export default function SpaceDetailPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen pb-24">
+      <div className="min-h-screen pb-24 bg-white">
         <div className="w-full max-w-4xl mx-auto px-4 pt-8">
           {/* 头部 */}
-          <div className="flex items-center gap-4 mb-5">
-            <Button
+          <div className="flex items-center gap-4 mb-8">
+            <button
               onClick={() => router.back()}
-              variant="ghost"
-              size="icon"
-              className="h-12 w-12"
+              className="h-12 w-12 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors"
             >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
+              <ArrowLeft className="w-5 h-5 text-gray-700" />
+            </button>
             <div className="flex-1">
-              <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                 <span className="text-lg">{selectedLocation ? selectedLocation.icon || '📦' : room.icon || '🏠'}</span>
                 <span>{isLocationDetail ? '位置' : '房间'}</span>
                 {selectedLocation && !isLocationDetail && (
@@ -323,11 +321,11 @@ export default function SpaceDetailPage() {
                   </>
                 )}
               </div>
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold tracking-tight text-black">
                 {selectedLocation ? selectedLocation.name : room.name}
               </h1>
               {(selectedLocation ? selectedLocation.description : room.description) && (
-                <p className="text-slate-600 mt-2 text-lg">
+                <p className="text-gray-600 mt-2 text-lg">
                   {selectedLocation ? selectedLocation.description : room.description}
                 </p>
               )}
@@ -335,58 +333,54 @@ export default function SpaceDetailPage() {
             <div className="flex items-center gap-3">
               {/* 删除房间按钮 - 只在房间页面显示 */}
               {!isLocationDetail && (
-                <Button
+                <button
                   onClick={handleDeleteRoom}
-                  variant="destructive"
-                  size="lg"
-                  className="h-12 px-6"
+                  className="h-12 w-12 rounded-xl hover:bg-red-50 transition-colors flex items-center justify-center"
+                  title="删除房间"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  删除房间
-                </Button>
+                  <Trash2 className="w-5 h-5 text-red-500" />
+                </button>
               )}
             </div>
           </div>
 
           {/* 内容区域 */}
-          <div className={`grid gap-5 grid-cols-1 ${isLocationDetail ? '' : 'lg:grid-cols-3'}`}>
+          <div className={`${isLocationDetail ? '' : 'lg:flex lg:gap-8'}`}>
             {/* 左侧：位置列表 */}
             {!isLocationDetail && (
-              <Card className="lg:col-span-1 col-span-1">
-                <CardHeader>
-                  <CardTitle className="text-xl text-slate-800">{t('spacesPage.locations')}</CardTitle>
-                </CardHeader>
-                <CardContent>
+              <div className="lg:w-1/3 w-full mb-8 lg:mb-0">
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-black">{t('spacesPage.locations')}</h2>
+                </div>
+                <div>
                   {locations.length === 0 ? (
                     <div className="text-center py-12">
-                      <Grid3X3 className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-slate-800 mb-2">{t('spacesPage.noLocations')}</h3>
-                      <p className="text-slate-500 mb-6">{t('spacesPage.addFirstLocation')}</p>
-                      <Link href="/spaces/add">
-                        <Button variant="primary" size="lg" className="h-12 px-6">
-                          <Plus className="h-4 w-4 mr-2" />
+                      <Grid3X3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">{t('spacesPage.noLocations')}</h3>
+                      <p className="text-gray-500 mb-6">{t('spacesPage.addFirstLocation')}</p>
+                      <Link href={`/spaces/add?room_id=${room.id}&room_name=${encodeURIComponent(room.name)}`}>
+                        <button className="h-12 px-6 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors flex items-center gap-2 mx-auto">
+                          <Plus className="h-4 w-4" />
                           {t('spacesPage.addFirstLocation')}
-                        </Button>
+                        </button>
                       </Link>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="grid gap-4">
                       {/* 查看所有物品选项 */}
                       <div 
-                        className={`group relative overflow-hidden rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                        className={`group relative overflow-hidden rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-sm ${
                           !selectedLocation
-                            ? 'border-sky-300 bg-gradient-to-br from-sky-50/80 to-blue-50/80'
-                            : 'border-slate-200/60 bg-white/80 backdrop-blur-sm hover:border-slate-300/80 hover:bg-slate-50/80'
+                            ? 'border-black bg-black text-white'
+                            : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                         }`}
                         onClick={handleBackToRoom}
                       >
-                        <div className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="flex-1">
-                                <div className="font-semibold text-slate-800 text-lg">{t('spacesPage.viewAllItems')}</div>
-                                <div className="text-slate-500">{t('spacesPage.showAllItems')}</div>
-                              </div>
+                        <div className="p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className={`font-semibold text-base mb-1 ${!selectedLocation ? 'text-white' : 'text-gray-900'}`}>{t('spacesPage.viewAllItems')}</div>
+                              <div className={`text-sm ${!selectedLocation ? 'text-gray-300' : 'text-gray-500'}`}>{t('spacesPage.showAllItems')}</div>
                             </div>
                           </div>
                         </div>
@@ -395,43 +389,41 @@ export default function SpaceDetailPage() {
                       {locations.map(location => (
                         <div 
                           key={location.id} 
-                          className={`group relative overflow-hidden rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                          className={`group relative overflow-hidden rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-sm ${
                             selectedLocation?.id === location.id
-                              ? 'border-sky-300 bg-gradient-to-br from-sky-50/80 to-blue-50/80'
-                              : 'border-slate-200/60 bg-white/80 backdrop-blur-sm hover:border-slate-300/80 hover:bg-slate-50/80'
+                              ? 'border-black bg-black text-white'
+                              : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                           }`}
                           onClick={() => handleLocationClick(location)}
                         >
-                          <div className="p-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4">
-                                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-2xl transition-all duration-300 ${
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex items-start gap-3 flex-1 min-w-0">
+                                <div className={`flex h-12 w-12 items-center justify-center rounded-xl text-xl transition-all duration-300 shrink-0 ${
                                   selectedLocation?.id === location.id
-                                    ? 'bg-gradient-to-br from-sky-100 to-blue-100'
-                                    : 'bg-slate-100'
+                                    ? 'bg-white'
+                                    : 'bg-gray-100'
                                 }`}>
                                   {location.icon || '📦'}
                                 </div>
-                                <div className="flex-1">
-                                  <div className="font-semibold text-slate-800 text-lg">{location.name}</div>
+                                <div className="flex-1 min-w-0">
+                                  <div className={`font-semibold text-base mb-1 ${selectedLocation?.id === location.id ? 'text-white' : 'text-gray-900'}`}>{location.name}</div>
                                   {location.description && (
-                                    <div className="text-slate-500">{location.description}</div>
+                                    <div className={`text-sm ${selectedLocation?.id === location.id ? 'text-gray-300' : 'text-gray-500'}`}>{location.description}</div>
                                   )}
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <Button
+                                <button
                                   onClick={(e) => {
                                     e.stopPropagation()
                                     handleDeleteLocation(location.id)
                                   }}
-                                  variant="destructive"
-                                  size="sm"
-                                  className="h-9 px-3"
+                                  className="h-8 w-8 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center"
+                                  title="删除位置"
                                 >
-                                  <Trash2 className="h-4 w-4 mr-1" />
-                                  删除
-                                </Button>
+                                  <Trash2 className="h-4 w-4 text-red-500" />
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -439,17 +431,17 @@ export default function SpaceDetailPage() {
                       ))}
                       
                       {/* 添加位置按钮 */}
-                      <Link href="/spaces/add">
-                        <div className="group relative overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-sky-300 hover:bg-sky-50/80">
-                          <div className="p-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4">
-                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 text-sky-600">
-                                  <Plus className="h-7 w-7" />
+                      <Link href={`/spaces/add?room_id=${room.id}&room_name=${encodeURIComponent(room.name)}`}>
+                        <div className="group relative overflow-hidden rounded-2xl border border-dashed border-gray-300 bg-gray-50 cursor-pointer transition-all duration-300 hover:shadow-sm hover:border-black hover:bg-gray-100 mt-4">
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex items-start gap-3 flex-1 min-w-0">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-200 text-gray-600 shrink-0">
+                                  <Plus className="h-5 w-5" />
                                 </div>
-                                <div className="flex-1">
-                                  <div className="font-semibold text-slate-800 text-lg">{t('spacesPage.addLocation')}</div>
-                                  <div className="text-slate-500">添加新的位置</div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-semibold text-gray-900 text-base mb-1">{t('spacesPage.addLocation')}</div>
+                                  <div className="text-gray-500 text-sm">添加新的位置</div>
                                 </div>
                               </div>
                             </div>
@@ -458,91 +450,106 @@ export default function SpaceDetailPage() {
                       </Link>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+            )}
+
+            {/* 分隔线 */}
+            {!isLocationDetail && (
+              <div className="lg:w-px lg:bg-gray-200 lg:mx-0 w-full h-px bg-gray-200 my-6 lg:my-0"></div>
             )}
 
             {/* 右侧：物品列表 */}
-            <Card className={`${isLocationDetail ? '' : 'lg:col-span-2 col-span-1'}`}>
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <CardTitle className="text-xl text-slate-800">
-                    {selectedLocation ? `${selectedLocation.name}的物品` : '房间内所有物品'}
-                  </CardTitle>
-                  <Link href={selectedLocation ? `/add?space_id=${selectedLocation.id}` : "/add"}>
-                    <Button variant="primary" size="lg" className="h-12 px-6">
-                      <Plus className="w-4 h-4 mr-2" />
-                      添加物品
-                    </Button>
-                  </Link>
-                </div>
-              </CardHeader>
-              <CardContent>
+            <div className={`${isLocationDetail ? '' : 'lg:flex-1'}`}>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                <h2 className="text-xl font-semibold text-black">
+                  {selectedLocation ? `${selectedLocation.name}的物品` : '房间内所有物品'}
+                </h2>
+                {selectedLocation && (
+                  <button 
+                    onClick={() => setShowAddItemModal(true)}
+                    className="h-12 px-6 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    添加物品
+                  </button>
+                )}
+              </div>
+              <div>
                 {items.length === 0 ? (
                   <div className="text-center py-12">
-                    <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-slate-800 mb-2">暂无物品</h3>
-                    <p className="text-slate-500 mb-6">
+                    <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无物品</h3>
+                    <p className="text-gray-500 mb-6">
                       {selectedLocation 
                         ? `在"${selectedLocation.name}"中还没有物品` 
                         : '开始添加你的第一个物品吧'
                       }
                     </p>
-                    <Link href={selectedLocation ? `/add?space_id=${selectedLocation.id}` : "/add"}>
-                      <Button variant="primary" size="lg" className="h-12 px-6">
-                        <Plus className="h-4 w-4 mr-2" />
+                    {selectedLocation ? (
+                      <button 
+                        onClick={() => setShowAddItemModal(true)}
+                        className="h-12 px-6 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors flex items-center gap-2 mx-auto"
+                      >
+                        <Plus className="h-4 w-4" />
                         添加物品
-                      </Button>
-                    </Link>
+                      </button>
+                    ) : (
+                      <Link href="/add">
+                        <button className="h-12 px-6 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors flex items-center gap-2 mx-auto">
+                          <Plus className="h-4 w-4" />
+                          添加物品
+                        </button>
+                      </Link>
+                    )}
                   </div>
                 ) : (
                   <div className="grid gap-4">
                     {items.map(item => (
-                      <div key={item.id} className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white/90 backdrop-blur-sm p-4 transition-all duration-300 hover:shadow-xl hover:border-sky-300/60 hover:-translate-y-1 shadow-lg shadow-slate-100/50">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                          <div className="flex items-center gap-3 w-full">
-                            <div className="flex-1">
-                              <div className="font-semibold text-slate-800 text-lg mb-2 flex items-center gap-2">
-                                <span className="truncate">{item.name}</span>
-                                {item.category && (
-                                  <span className="inline-flex items-center rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 px-3 py-1 text-xs font-medium text-emerald-700 border border-emerald-200/60">
-                                    {item.category}
-                                  </span>
-                                )}
+                      <div key={item.id} className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-sm">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-gray-900 text-base truncate">{item.name}</span>
+                              {item.category && (
+                                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 shrink-0">
+                                  {item.category}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                              <div className="flex items-center gap-1">
+                                <Package className="h-4 w-4 text-gray-400" />
+                                <span>数量: {item.quantity}</span>
                               </div>
-                              <div className="flex flex-col gap-2 text-sm text-slate-600 mb-2 leading-tight">
-                                <div className="flex items-center gap-2">
-                                  <Package className="h-4 w-4 text-sky-500" />
-                                  <span>数量：{item.quantity}</span>
-                                </div>
-                                {!selectedLocation && (
-                                  <div className="flex items-center gap-2">
-                                    <MapPin className="h-4 w-4 text-emerald-500" />
-                                    <span className="whitespace-normal">位置：{item.spaces?.name || '未指定'}</span>
-                                  </div>
-                                )}
-                              </div>
-                              {item.expire_date && (
-                                <div className="flex items-center gap-1 text-sm text-amber-600">
-                                  <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
-                                  过期: {new Date(item.expire_date).toLocaleDateString()}
+                              {!selectedLocation && (
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="h-4 w-4 text-gray-400" />
+                                  <span className="truncate">位置: {item.spaces?.name || '未指定'}</span>
                                 </div>
                               )}
                             </div>
+                            {item.expire_date && (
+                              <div className="flex items-center gap-1 text-sm text-amber-600">
+                                <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
+                                过期: {new Date(item.expire_date).toLocaleDateString()}
+                              </div>
+                            )}
                           </div>
-                          <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 w-full sm:w-auto mt-2 sm:mt-0">
+                          <div className="flex flex-col gap-2 shrink-0">
                             <Link 
                               href={`/item/${item.id}`}
-                              className="modern-button-ghost inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 sm:min-w-[120px] whitespace-nowrap shrink-0"
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:text-blue-700 transition-colors"
+                              title="查看详情"
                             >
-                              查看详情
-                              <Sparkles className="h-4 w-4" />
+                              <Eye className="h-4 w-4" />
                             </Link>
                             <button
                               onClick={() => handleDeleteItem(item.id)}
-                              className="modern-button-secondary inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 sm:min-w-[100px] whitespace-nowrap shrink-0 text-red-600 hover:bg-red-50"
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-red-600 hover:text-red-700 transition-colors"
+                              title="删除"
                             >
-                              删除
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
                         </div>
@@ -550,11 +557,34 @@ export default function SpaceDetailPage() {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Add Item Modal */}
+      {showAddItemModal && selectedLocation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowAddItemModal(false)}>
+          <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200/60 shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="space-y-3">
+              <Link href={`/upload?location_id=${selectedLocation.id}&location_name=${encodeURIComponent(selectedLocation.name)}`} className="block">
+                <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-black text-white hover:bg-gray-800 transition-all">
+                  <ImageIcon className="h-5 w-5 text-white" />
+                  AI 识别添加
+                </button>
+              </Link>
+              <Link href={`/add?space_id=${selectedLocation.id}`} className="block">
+                <button className="w-full flex items-center gap-3 p-4 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 transition-all">
+                  <Edit3 className="h-5 w-5 text-gray-600" />
+                  手动添加
+                </button>
+              </Link>
+            </div>
+            <button onClick={() => setShowAddItemModal(false)} className="mt-6 w-full bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl px-4 py-3 font-medium transition-all">关闭</button>
+          </div>
+        </div>
+      )}
     </AuthGuard>
   )
 } 

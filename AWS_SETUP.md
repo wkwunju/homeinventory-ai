@@ -12,7 +12,7 @@
 ### 1.2 创建新用户
 1. 点击左侧菜单的 "Users"
 2. 点击 "Create user"
-3. 输入用户名：`homeinventory-rekognition`
+3. 输入用户名：`maisonstock-rekognition`
 4. 勾选 "Access key - Programmatic access"
 5. 点击 "Next: Permissions"
 
