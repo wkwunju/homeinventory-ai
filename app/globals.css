@@ -16,6 +16,31 @@
     /* 移动端滚动优化 */
     -webkit-overflow-scrolling: touch;
   }
+
+  /* Custom scrollbar styling - black theme */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #000000 #f1f1f1;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #000000;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #333333;
+  }
   /* Only two font sizes: 20pt for page titles, 14px for everything else */
   h1 { font-size: 20pt !important; @apply font-bold; }
   h2, h3, h4, h5, h6 { font-size: 14px !important; @apply font-medium; }

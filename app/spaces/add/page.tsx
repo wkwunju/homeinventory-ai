@@ -340,10 +340,10 @@ export default function AddSpacePage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                 {t('spaces.addTitle')}
               </h1>
-              <p className="text-slate-600 text-lg mt-2">
+              <p className="text-gray-600 text-lg mt-2">
                 {step === 'room' ? t('spaces.selectOrCreateRoom') : t('spaces.addLocationForRoom', { room: selectedRoom?.name })}
               </p>
             </div>
@@ -351,18 +351,18 @@ export default function AddSpacePage() {
 
           {/* 步骤指示器 */}
           <div className="flex items-center gap-3 mb-8">
-            <div className={`flex items-center gap-3 ${step === 'room' ? 'text-sky-600' : 'text-slate-400'}`}>
+            <div className={`flex items-center gap-3 ${step === 'room' ? 'text-gray-900' : 'text-gray-400'}`}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
-                step === 'room' ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg shadow-sky-200/50' : 'bg-slate-200/60'
+                step === 'room' ? 'bg-black text-white' : 'bg-gray-200'
               }`}>
                 1
               </div>
               <span className="font-medium">{t('spaces.selectRoom')}</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-slate-400" />
-            <div className={`flex items-center gap-3 ${step === 'furniture' ? 'text-sky-600' : 'text-slate-400'}`}>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+            <div className={`flex items-center gap-3 ${step === 'furniture' ? 'text-gray-900' : 'text-gray-400'}`}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
-                step === 'furniture' ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg shadow-sky-200/50' : 'bg-slate-200/60'
+                step === 'furniture' ? 'bg-black text-white' : 'bg-gray-200'
               }`}>
                 2
               </div>
@@ -376,32 +376,32 @@ export default function AddSpacePage() {
               {step === 'room' ? (
                 <div className="space-y-8">
                   <div>
-                    <h3 className="text-xl font-semibold mb-6 text-slate-800">{t('spaces.selectRoom')}</h3>
+                    <h3 className="text-xl font-semibold mb-6 text-gray-900">{t('spaces.selectRoom')}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       {commonRooms.map(room => (
                         <button
                           key={room.id}
                           type="button"
                           onClick={() => handleRoomSelect(room.id)}
-                          className={`p-6 border rounded-2xl text-left transition-all duration-300 ${
+                          className={`p-6 rounded-2xl text-left transition-all duration-300 focus:outline-none focus:ring-0 ${
                             formData.preset_id === room.id
-                              ? 'border-sky-500 bg-gradient-to-br from-sky-50/80 to-blue-50/80 text-sky-700 shadow-lg shadow-sky-100/50'
-                              : 'border-slate-200/60 hover:border-sky-300/80 hover:bg-sky-50/80 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md'
+                              ? 'bg-gray-400 text-white'
+                              : 'border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 bg-white'
                           }`}
                         >
                           <div className="text-3xl mb-3">{room.icon}</div>
-                          <div className="font-semibold text-slate-800">{room.name}</div>
-                          <div className="text-sm text-slate-600 mt-1">{room.description}</div>
+                          <div className={`font-semibold ${formData.preset_id === room.id ? 'text-white' : 'text-gray-900'}`}>{room.name}</div>
+                          <div className={`text-sm mt-1 ${formData.preset_id === room.id ? 'text-gray-200' : 'text-gray-600'}`}>{room.description}</div>
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <div className="border-t border-slate-200/60 pt-8">
-                    <h3 className="text-xl font-semibold mb-6 text-slate-800">{t('spaces.createCustomRoom')}</h3>
+                  <div className="border-t border-gray-200 pt-8">
+                    <h3 className="text-xl font-semibold mb-6 text-gray-900">{t('spaces.createCustomRoom')}</h3>
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div>
-                        <label htmlFor="custom-room" className="block text-sm font-semibold text-slate-700 mb-3">
+                        <label htmlFor="custom-room" className="block text-sm font-medium text-gray-700 mb-3">
                           {t('spaces.roomName')}
                         </label>
                         <Input
@@ -414,25 +414,25 @@ export default function AddSpacePage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
                           {t('spaces.roomIcon')}
                         </label>
                         <button
                           type="button"
                           onClick={() => setShowIconSelector(true)}
-                          className="w-full p-5 border border-slate-200/60 rounded-2xl text-left hover:border-sky-300/80 hover:bg-sky-50/80 transition-all duration-300 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md"
+                          className="w-full p-5 border border-gray-200 rounded-2xl text-left hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 bg-white"
                         >
                           <div className="flex items-center gap-4">
                             <div className="text-3xl">{formData.icon}</div>
                             <div>
-                              <div className="font-semibold text-slate-800">{t('spaces.selectIcon')}</div>
-                              <div className="text-sm text-slate-600 mt-1">{t('spaces.clickToSelectIcon')}</div>
+                              <div className="font-medium text-gray-900">{t('spaces.selectIcon')}</div>
+                              <div className="text-sm text-gray-600 mt-1">{t('spaces.clickToSelectIcon')}</div>
                             </div>
                           </div>
                         </button>
                       </div>
                       <div>
-                        <label htmlFor="custom-description" className="block text-sm font-semibold text-slate-700 mb-3">
+                        <label htmlFor="custom-description" className="block text-sm font-medium text-gray-700 mb-3">
                           {t('spaces.description')} ({t('common.optional')})
                         </label>
                         <Textarea
@@ -443,41 +443,39 @@ export default function AddSpacePage() {
                           placeholder={t('spaces.roomDescriptionPlaceholder')}
                         />
                       </div>
-                      <Button
+                      <button
                         type="submit"
                         disabled={loading || !formData.name.trim()}
-                        variant="primary"
-                        size="lg"
-                        className="w-full h-14 text-lg"
+                        className="w-full h-14 text-lg bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {loading ? t('common.loading') : t('spaces.createRoom')}
-                      </Button>
+                      </button>
                     </form>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-8">
                   <div>
-                    <h3 className="text-xl font-semibold mb-6 text-slate-800">{t('spaces.selectLocationForRoom', { room: selectedRoom?.originalName || selectedRoom?.name })}</h3>
+                    <h3 className="text-xl font-semibold mb-6 text-gray-900">{t('spaces.selectLocationForRoom', { room: selectedRoom?.originalName || selectedRoom?.name })}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       {selectedRoom && commonFurniture[selectedRoom.originalName || selectedRoom.name as keyof typeof commonFurniture]?.map((furniture: any) => (
                         <button
                           key={furniture.id}
                           type="button"
                           onClick={() => handleFurnitureSelect(furniture.id)}
-                          className={`p-6 border rounded-2xl text-left transition-all duration-300 ${
+                          className={`p-6 rounded-2xl text-left transition-all duration-300 focus:outline-none focus:ring-0 ${
                             formData.preset_id === furniture.id 
-                              ? 'border-sky-500 bg-gradient-to-br from-sky-50/80 to-blue-50/80 text-sky-700 shadow-lg shadow-sky-100/50' 
-                              : 'border-slate-200/60 hover:border-sky-300/80 hover:bg-slate-50/80 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md'
+                              ? 'bg-gray-400 text-white' 
+                              : 'border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 bg-white'
                           }`}
                         >
                           <div className="text-3xl mb-3">{furniture.icon}</div>
-                          <div className="font-semibold text-slate-800">{furniture.name}</div>
-                          <div className="text-sm text-slate-600 mt-1">{furniture.description}</div>
+                          <div className={`font-semibold ${formData.preset_id === furniture.id ? 'text-white' : 'text-gray-900'}`}>{furniture.name}</div>
+                          <div className={`text-sm mt-1 ${formData.preset_id === furniture.id ? 'text-gray-200' : 'text-gray-600'}`}>{furniture.description}</div>
                         </button>
                       ))}
                       {selectedRoom && !commonFurniture[selectedRoom.originalName || selectedRoom.name as keyof typeof commonFurniture] && (
-                        <div className="col-span-2 text-center py-12 text-slate-500">
+                        <div className="col-span-2 text-center py-12 text-gray-500">
                           <p className="text-lg">该房间类型暂无预设位置选项</p>
                           <p className="text-sm mt-2">请使用下方自定义位置功能</p>
                         </div>
@@ -485,11 +483,11 @@ export default function AddSpacePage() {
                     </div>
                   </div>
 
-                  <div className="border-t border-slate-200/60 pt-8">
-                    <h3 className="text-xl font-semibold mb-6 text-slate-800">{t('spaces.createCustomLocation')}</h3>
+                  <div className="border-t border-gray-200 pt-8">
+                    <h3 className="text-xl font-semibold mb-6 text-gray-900">{t('spaces.createCustomLocation')}</h3>
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div>
-                        <label htmlFor="custom-furniture" className="block text-sm font-semibold text-slate-700 mb-3">
+                        <label htmlFor="custom-furniture" className="block text-sm font-medium text-gray-700 mb-3">
                           {t('spaces.locationName')}
                         </label>
                         <Input
@@ -502,25 +500,25 @@ export default function AddSpacePage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
                           {t('spaces.locationIcon')}
                         </label>
                         <button
                           type="button"
                           onClick={() => setShowIconSelector(true)}
-                          className="w-full p-5 border border-slate-200/60 rounded-2xl text-left hover:border-sky-300/80 hover:bg-sky-50/80 transition-all duration-300 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md"
+                          className="w-full p-5 border border-gray-200 rounded-2xl text-left hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 bg-white"
                         >
                           <div className="flex items-center gap-4">
                             <div className="text-3xl">{formData.icon}</div>
                             <div>
-                              <div className="font-semibold text-slate-800">{t('spaces.selectIcon')}</div>
-                              <div className="text-sm text-slate-600 mt-1">{t('spaces.clickToSelectIcon')}</div>
+                              <div className="font-medium text-gray-900">{t('spaces.selectIcon')}</div>
+                              <div className="text-sm text-gray-600 mt-1">{t('spaces.clickToSelectIcon')}</div>
                             </div>
                           </div>
                         </button>
                       </div>
                       <div>
-                        <label htmlFor="custom-furniture-description" className="block text-sm font-semibold text-slate-700 mb-3">
+                        <label htmlFor="custom-furniture-description" className="block text-sm font-medium text-gray-700 mb-3">
                           {t('spaces.description')} ({t('common.optional')})
                         </label>
                         <Textarea
@@ -531,15 +529,13 @@ export default function AddSpacePage() {
                           placeholder={t('spaces.locationDescriptionPlaceholder')}
                         />
                       </div>
-                      <Button
+                      <button
                         type="submit"
                         disabled={loading || !formData.name.trim()}
-                        variant="primary"
-                        size="lg"
-                        className="w-full h-14 text-lg"
+                        className="w-full h-14 text-lg bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {loading ? t('common.loading') : `${t('spaces.createLocation')} (${formData.name || 'undefined'})`}
-                      </Button>
+                      </button>
                     </form>
                   </div>
                 </div>

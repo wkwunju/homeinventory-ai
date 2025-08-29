@@ -91,6 +91,15 @@ export default function UploadPage() {
   const [showCamera, setShowCamera] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [expandedSet, setExpandedSet] = useState<Set<number>>(new Set())
+  
+  // Save mode: 'one-space' or 'separate-spaces'
+  const [saveMode, setSaveMode] = useState<'one-space' | 'separate-spaces'>('one-space')
+  
+  // Global room/location for one-space mode
+  const [globalRoomId, setGlobalRoomId] = useState<string>('')
+  const [globalRoomName, setGlobalRoomName] = useState<string>('')
+  const [globalLocationId, setGlobalLocationId] = useState<string>('')
+  const [globalLocationName, setGlobalLocationName] = useState<string>('')
 
   const { t, language } = useLanguage()
 
@@ -170,6 +179,19 @@ export default function UploadPage() {
         : item
     ))
     setShowLocationSelector(false)
+  }
+
+  // Global room/location selection for one-space mode
+  const selectGlobalRoom = (roomId: string, roomName: string) => {
+    setGlobalRoomId(roomId)
+    setGlobalRoomName(roomName)
+    setGlobalLocationId('')
+    setGlobalLocationName('')
+  }
+
+  const selectGlobalLocation = (locationId: string, locationName: string) => {
+    setGlobalLocationId(locationId)
+    setGlobalLocationName(locationName)
   }
 
   // 拉取用户空间（房间/位置）
@@ -659,6 +681,23 @@ export default function UploadPage() {
       return
     }
 
+    // Validate required selections based on save mode
+    if (saveMode === 'one-space') {
+      if (!globalRoomId || !globalLocationId) {
+        setError('请选择房间和位置')
+        return
+      }
+    } else {
+      // Check that all items have room and location selected
+      for (let i = 0; i < recognizedItems.length; i++) {
+        const item = recognizedItems[i] as any
+        if (!item.selectedRoomId || !item.selectedLocationId) {
+          setError(`请为所有物品选择房间和位置`)
+          return
+        }
+      }
+    }
+
     setLoading(true)
     try {
       const convertedItems = convertToItems(recognizedItems)
@@ -667,9 +706,14 @@ export default function UploadPage() {
         // 检查是否需要创建房间和位置
         let spaceId = item.space_id
         
-        if (item.selectedRoomId && item.selectedLocationId) {
-          // 用户已选择房间和位置，检查是否需要创建
-          spaceId = item.selectedLocationId
+        if (saveMode === 'one-space') {
+          // Use global room/location for all items
+          spaceId = globalLocationId
+        } else {
+          // Use individual room/location for each item
+          if (item.selectedRoomId && item.selectedLocationId) {
+            spaceId = item.selectedLocationId
+          }
         }
         
         const response = await fetch('/api/items', {
@@ -716,88 +760,82 @@ export default function UploadPage() {
       <div className="min-h-screen pb-24">
         <div className="w-full max-w-2xl mx-auto px-4 pt-8">
           {/* 头部 */}
-          <div className="text-center mb-5">
-            <h1 className="font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2 text-[20pt]">
-              {t('upload.title')}
+          <div className="text-center mb-6">
+            <h1 className="font-bold text-gray-900 mb-2 text-xl">
+              智能上传
             </h1>
-            <p className="text-slate-600 max-w-2xl mx-auto text-[14pt]">
-              {t('upload.description')}
+            <p className="text-gray-600 max-w-2xl mx-auto text-sm">
+              上传或拍照，自动识别物品并快速添加到清单
             </p>
           </div>
 
           {/* 上传区域 */}
-          <Card className="mb-5 text-[14pt]">
+          <Card className="mb-5">
             <CardContent className="p-6">
               <div className="text-center">
                 {!selectedFile ? (
-                  <div className="space-y-6">
-                    <div className="mx-auto w-24 h-24 bg-gradient-to-br from-sky-100 to-blue-100 rounded-full flex items-center justify-center">
-                      <Upload className="w-12 h-12 text-sky-600" />
-                </div>
+                  <div className="space-y-4">
+                    <div className="mx-auto w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center">
+                      <Upload className="w-8 h-8 text-blue-500" />
+                    </div>
                     <div>
-                      <h3 className="font-semibold text-slate-800 mb-2 text-[14pt]">
-                        {t('upload.dragAndDrop')}
+                      <h3 className="font-medium text-gray-900 mb-1 text-base">
+                        拖放图片到这里，或选择文件
                       </h3>
-                      <p className="text-slate-600 mb-6 text-[14pt]">
-                        {t('upload.supportedFormats')}
+                      <p className="text-gray-500 mb-4 text-sm">
+                        支持 JPG、PNG，最大 5MB
                       </p>
-              </div>
-              
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <button
                         onClick={() => fileInputRef.current?.click()} 
-                        variant="blue"
-                        size="lg"
-                        className="h-14 px-8 text-lg"
+                        className="flex items-center justify-center gap-2 px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-all"
                       >
-                        <Upload className="w-5 h-5 mr-2" />
-                        {t('upload.selectFile')}
-                      </Button>
-                      <Button
+                        <Upload className="w-4 h-4" />
+                        选择文件
+                      </button>
+                      <button
                         onClick={handleTakePhoto}
-                        variant="outline"
-                        size="lg"
-                        className="h-14 px-8 text-lg"
+                        className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-200 bg-white text-gray-700 rounded-full font-medium hover:bg-gray-50 transition-all"
                       >
-                        <Camera className="w-5 h-5 mr-2" />
-                        {t('upload.takePhoto')}
-                      </Button>
+                        <Camera className="w-4 h-4" />
+                        拍照
+                      </button>
                     </div>
                 </div>
               ) : (
                   <div className="space-y-6">
                     {/* Status */}
-                    {uploading ? (
-                      <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
-                        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
-                      </div>
-                    ) : (
-                      <div className="mx-auto w-24 h-24 bg-gradient-to-br from-emerald-100 to-green-100 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-12 h-12 text-emerald-600" />
-                      </div>
-                    )}
                     <div className="space-y-3">
-                      <h3 className="font-semibold text-slate-800 mb-1 text-[14pt]">
-                        {uploading ? t('upload.uploading') : t('upload.fileSelected')}
+                      <h3 className="font-medium text-gray-900 mb-1 text-base flex items-center gap-2 justify-center">
+                        {uploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
+                            {t('upload.uploading')}
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-emerald-600" />
+                            {t('upload.fileSelected')}
+                          </>
+                        )}
                       </h3>
                       {/* Thumbnail preview */}
                       {preview && (
                         <img src={preview} alt="预览" className="mx-auto w-40 h-40 object-cover rounded-2xl border border-slate-200/60 shadow-sm" />
                       )}
-                      <p className="text-slate-600 text-[14pt] truncate text-center">{selectedFile.name}</p>
                     </div>
 
                     <div className="flex justify-center gap-4">
-                      <Button
+                      <button
                         onClick={() => setSelectedFile(null)}
-                        variant="outline"
-                        size="lg"
-                        className="h-14 px-8 text-lg"
+                        className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-200 bg-white text-gray-700 rounded-full font-medium hover:bg-gray-50 transition-all"
                         disabled={uploading}
                       >
-                        <X className="w-5 h-5 mr-2" />
-                        {t('upload.changeFile')}
-                      </Button>
+                        <X className="w-4 h-4" />
+                        更换图片
+                      </button>
                     </div>
                   </div>
                 )}
@@ -805,16 +843,153 @@ export default function UploadPage() {
             </CardContent>
           </Card>
 
-          {/* 识别结果 */}
+          {/* Save Mode Selection Card */}
           {convertedItems.length > 0 && (
-            <Card className="mb-6 text-[14pt]">
+            <Card className="mb-6">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-slate-800 text-[14pt] font-semibold">识别结果</CardTitle>
-                  <Button onClick={saveAllToInventory} disabled={loading} variant="blue">全部保存</Button>
-                  </div>
+                <CardTitle className="text-gray-900 text-base font-medium">选择保存方式</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent>
+                <div className="space-y-4">
+                  <button
+                    onClick={() => setSaveMode('one-space')}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                      saveMode === 'one-space'
+                        ? 'border-black bg-black text-white'
+                        : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium mb-1">保存到同一位置</div>
+                    <div className={`text-sm ${saveMode === 'one-space' ? 'text-gray-200' : 'text-gray-600'}`}>
+                      所有物品保存到相同的房间和位置
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setSaveMode('separate-spaces')}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                      saveMode === 'separate-spaces'
+                        ? 'border-black bg-black text-white'
+                        : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium mb-1">分别保存到不同位置</div>
+                    <div className={`text-sm ${saveMode === 'separate-spaces' ? 'text-gray-200' : 'text-gray-600'}`}>
+                      每个物品可以保存到不同的房间和位置
+                    </div>
+                  </button>
+                </div>
+
+                {/* Global Room/Location Selectors for One Space Mode */}
+                {saveMode === 'one-space' && (
+                  <div className="mt-6 p-4 bg-gray-100 rounded-xl border border-gray-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Rooms Section */}
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-3 font-medium">房间</label>
+                        <div className="space-y-2">
+                          {getRoomOptions().map(room => (
+                            <label
+                              key={room.id}
+                              className={`flex items-center p-3 rounded-2xl border-2 cursor-pointer transition-all ${
+                                globalRoomId === room.id
+                                  ? 'border-black bg-black text-white'
+                                  : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name="globalRoom"
+                                value={room.id}
+                                checked={globalRoomId === room.id}
+                                onChange={() => selectGlobalRoom(room.id, room.name)}
+                                className="sr-only"
+                              />
+                              <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
+                                globalRoomId === room.id
+                                  ? 'border-white bg-white'
+                                  : 'border-gray-400'
+                              }`}>
+                                {globalRoomId === room.id && (
+                                  <div className="w-2 h-2 rounded-full bg-black"></div>
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-medium">{room.name}</div>
+                                {room.description && (
+                                  <div className={`text-sm ${
+                                    globalRoomId === room.id ? 'text-gray-200' : 'text-gray-600'
+                                  }`}>
+                                    {room.description}
+                                  </div>
+                                )}
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Locations Section */}
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-3 font-medium">位置</label>
+                        <div className="space-y-2">
+                          {globalRoomId ? (
+                            getLocationOptions(globalRoomId).map(location => (
+                              <label
+                                key={location.id}
+                                className={`flex items-center p-3 rounded-2xl border-2 cursor-pointer transition-all ${
+                                  globalLocationId === location.id
+                                    ? 'border-black bg-black text-white'
+                                    : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  name="globalLocation"
+                                  value={location.id}
+                                  checked={globalLocationId === location.id}
+                                  onChange={() => selectGlobalLocation(location.id, location.name)}
+                                  className="sr-only"
+                                />
+                                <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
+                                  globalLocationId === location.id
+                                    ? 'border-white bg-white'
+                                    : 'border-gray-400'
+                                }`}>
+                                  {globalLocationId === location.id && (
+                                    <div className="w-2 h-2 rounded-full bg-black"></div>
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="font-medium">{location.name}</div>
+                                  {location.description && (
+                                    <div className={`text-sm ${
+                                      globalLocationId === location.id ? 'text-gray-200' : 'text-gray-600'
+                                    }`}>
+                                      {location.description}
+                                    </div>
+                                  )}
+                                </div>
+                              </label>
+                            ))
+                          ) : (
+                            <div className="text-gray-500 text-sm italic p-3 bg-gray-50 rounded-2xl border border-gray-200">
+                              请先选择房间
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 识别物品列表 */}
+          {convertedItems.length > 0 && (
+            <div className="mb-6">
+              <div className="space-y-4">
                 {recognizedItems.map((raw, index) => {
                   const item: any = convertedItems[index] || {}
                   const rooms = getRoomOptions()
@@ -825,84 +1000,90 @@ export default function UploadPage() {
                   const selectedLocationName = (raw as any).selectedLocationName || ''
                   const expanded = expandedSet.has(index)
                   return (
-                    <div key={index} className="p-5 border border-slate-200/60 rounded-2xl bg-white/90 backdrop-blur-sm">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="font-semibold text-slate-800 text-[14pt]">{(raw as any).editedName || raw.name}</div>
-                        <div className="text-slate-600 text-[14pt]">置信度: {(raw.confidence * 100).toFixed(0)}%</div>
+                    <div key={index} className="p-4 border border-gray-100 rounded-2xl bg-white">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="font-medium text-gray-900 text-base">{(raw as any).editedName || raw.name}</div>
+                        <div className="text-gray-600 text-sm">置信度: {(raw.confidence * 100).toFixed(0)}%</div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-3">
                         <div>
-                          <label className="block text-[14pt] text-slate-700 mb-1">名称</label>
-                          <Input variant="underline" className="h-11 text-[14pt]" value={(raw as any).editedName ?? item.name ?? ''} onChange={(e) => updateEditedField(index, 'name', e.target.value)} placeholder="名称 *" />
+                          <label className="block text-sm text-gray-700 mb-1">名称</label>
+                          <Input variant="underline" className="h-10 text-sm" value={(raw as any).editedName ?? item.name ?? ''} onChange={(e) => updateEditedField(index, 'name', e.target.value)} placeholder="名称 *" />
                         </div>
                         <div>
-                          <label className="block text-[14pt] text-slate-700 mb-1">分类</label>
-                          <Input variant="underline" className="h-11 text-[14pt]" value={(raw as any).editedCategory ?? item.category ?? ''} onChange={(e) => updateEditedField(index, 'category', e.target.value)} placeholder="分类 *" />
+                          <label className="block text-sm text-gray-700 mb-1">分类</label>
+                          <Input variant="underline" className="h-10 text-sm" value={(raw as any).editedCategory ?? item.category ?? ''} onChange={(e) => updateEditedField(index, 'category', e.target.value)} placeholder="分类 *" />
                         </div>
                         <div>
-                          <label className="block text-[14pt] text-slate-700 mb-1">数量</label>
-                          <Input variant="underline" className="h-11 text-[14pt]" type="number" min="1" value={(raw.quantity as number | '' ) as any} onChange={(e) => updateItemQuantity(index, e.target.value === '' ? 1 : (parseInt(e.target.value) || 1))} placeholder="数量 *" />
+                          <label className="block text-sm text-gray-700 mb-1">数量</label>
+                          <Input variant="underline" className="h-10 text-sm" type="number" min="1" value={(raw.quantity as number | '' ) as any} onChange={(e) => updateItemQuantity(index, e.target.value === '' ? 1 : (parseInt(e.target.value) || 1))} placeholder="数量 *" />
                         </div>
-                        <div>
-                          <label className="block text-[14pt] text-slate-700 mb-1">房间</label>
-                          <select
-                            value={selectedRoomId}
-                            onChange={(e) => {
-                              const roomId = e.target.value
-                              const room = rooms.find(r => r.id === roomId)
-                              if (room) selectRoom(index, room.id, room.name)
-                            }}
-                            className="flex h-11 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-[14pt] shadow-sm hover:border-slate-300/60 hover:shadow-md"
-                          >
-                            <option value="">选择房间</option>
-                            {rooms.map(r => (
-                              <option key={r.id} value={r.id}>{r.name}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-[14pt] text-slate-700 mb-1">位置</label>
-                          <select
-                            value={selectedLocationId}
-                            onChange={(e) => {
-                              const locId = e.target.value
-                              const loc = locations.find(l => l.id === locId)
-                              if (loc) selectLocation(index, loc.id, loc.name)
-                            }}
-                            className="flex h-11 w-full rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 py-2 text-[14pt] shadow-sm hover:border-slate-300/60 hover:shadow-md"
-                          >
-                            <option value="">选择位置</option>
-                            {locations.map(l => (
-                              <option key={l.id} value={l.id}>{l.name}</option>
-                            ))}
-                          </select>
-                        </div>
+                        
+                        {/* Only show individual room/location selectors in separate-spaces mode */}
+                        {saveMode === 'separate-spaces' && (
+                          <>
+                            <div>
+                              <label className="block text-sm text-gray-700 mb-1">房间</label>
+                              <select
+                                value={selectedRoomId}
+                                onChange={(e) => {
+                                  const roomId = e.target.value
+                                  const room = rooms.find(r => r.id === roomId)
+                                  if (room) selectRoom(index, room.id, room.name)
+                                }}
+                                className="flex h-10 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm hover:border-gray-300"
+                              >
+                                <option value="">选择房间</option>
+                                {rooms.map(r => (
+                                  <option key={r.id} value={r.id}>{r.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-sm text-gray-700 mb-1">位置</label>
+                              <select
+                                value={selectedLocationId}
+                                onChange={(e) => {
+                                  const locId = e.target.value
+                                  const loc = locations.find(l => l.id === locId)
+                                  if (loc) selectLocation(index, loc.id, loc.name)
+                                }}
+                                className="flex h-10 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm hover:border-gray-300"
+                              >
+                                <option value="">选择位置</option>
+                                {locations.map(l => (
+                                  <option key={l.id} value={l.id}>{l.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </>
+                        )}
                       </div>
                       <div className={expanded ? 'block' : 'hidden'}>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-[14pt] text-slate-700 mb-1">过期日期</label>
-                            <Input variant="underline" className="h-11 text-[14pt]" type="date" value={(raw as any).editedExpireDate ?? item.expire_date ?? ''} onChange={(e) => updateEditedField(index, 'expireDate', e.target.value)} placeholder="过期日期" />
+                            <label className="block text-sm text-gray-700 mb-1">过期日期</label>
+                            <Input variant="underline" className="h-10 text-sm" type="date" value={(raw as any).editedExpireDate ?? item.expire_date ?? ''} onChange={(e) => updateEditedField(index, 'expireDate', e.target.value)} placeholder="过期日期" />
                           </div>
                           <div>
-                            <label className="block text-[14pt] text-slate-700 mb-1">价值</label>
-                            <Input variant="underline" className="h-11 text-[14pt]" type="number" step="0.01" value={(raw as any).editedValue ?? (item.value ?? '')} onChange={(e) => updateEditedField(index, 'value', e.target.value)} placeholder="价值" />
+                            <label className="block text-sm text-gray-700 mb-1">价值</label>
+                            <Input variant="underline" className="h-10 text-sm" type="number" step="0.01" value={(raw as any).editedValue ?? (item.value ?? '')} onChange={(e) => updateEditedField(index, 'value', e.target.value)} placeholder="价值" />
                           </div>
                           <div>
-                            <label className="block text-[14pt] text-slate-700 mb-1">品牌</label>
-                            <Input variant="underline" className="h-11 text-[14pt]" value={(raw as any).editedBrand ?? item.brand ?? ''} onChange={(e) => updateEditedField(index, 'brand', e.target.value)} placeholder="品牌" />
+                            <label className="block text-sm text-gray-700 mb-1">品牌</label>
+                            <Input variant="underline" className="h-10 text-sm" value={(raw as any).editedBrand ?? item.brand ?? ''} onChange={(e) => updateEditedField(index, 'brand', e.target.value)} placeholder="品牌" />
                           </div>
                           <div>
-                            <label className="block text-[14pt] text-slate-700 mb-1">购买日期</label>
-                            <Input variant="underline" className="h-11 text-[14pt]" type="date" value={(raw as any).editedPurchaseDate ?? item.purchase_date ?? ''} onChange={(e) => updateEditedField(index, 'purchaseDate', e.target.value)} placeholder="购买日期" />
+                            <label className="block text-sm text-gray-700 mb-1">购买日期</label>
+                            <Input variant="underline" className="h-10 text-sm" type="date" value={(raw as any).editedPurchaseDate ?? item.purchase_date ?? ''} onChange={(e) => updateEditedField(index, 'purchaseDate', e.target.value)} placeholder="购买日期" />
                           </div>
                           <div>
-                            <label className="block text-[14pt] text-slate-700 mb-1">购买来源</label>
-                            <Input variant="underline" className="h-11 text-[14pt]" value={(raw as any).editedPurchaseSource ?? item.purchase_source ?? ''} onChange={(e) => updateEditedField(index, 'purchaseSource', e.target.value)} placeholder="购买来源" />
+                            <label className="block text-sm text-gray-700 mb-1">购买来源</label>
+                            <Input variant="underline" className="h-10 text-sm" value={(raw as any).editedPurchaseSource ?? item.purchase_source ?? ''} onChange={(e) => updateEditedField(index, 'purchaseSource', e.target.value)} placeholder="购买来源" />
                           </div>
                           <div className="md:col-span-2 lg:col-span-3">
-                            <label className="block text-[14pt] text-slate-700 mb-1">备注</label>
-                            <Textarea variant="underline" rows={3} className="text-[14pt]" value={(raw as any).editedNotes ?? item.notes ?? ''} onChange={(e) => updateEditedField(index, 'notes', e.target.value)} placeholder="备注" />
+                            <label className="block text-sm text-gray-700 mb-1">备注</label>
+                            <Textarea variant="underline" rows={3} className="text-sm" value={(raw as any).editedNotes ?? item.notes ?? ''} onChange={(e) => updateEditedField(index, 'notes', e.target.value)} placeholder="备注" />
                           </div>
                         </div>
                       </div>
@@ -920,21 +1101,32 @@ export default function UploadPage() {
                         >
                           {expanded ? '收起更多' : '展开更多'}
                         </button>
-                        <Button
+                        <button
                           onClick={() => {
                             saveToInventory(raw as any, (raw.quantity as number) || 1)
                           }}
-                          variant="blue"
                           disabled={!((raw as any).editedName || raw.name) || !((raw as any).editedCategory || item.category) || !(raw.quantity || 1) || !((raw as any).selectedRoomId && (raw as any).selectedLocationId)}
+                          className="px-4 py-2 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           保存
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   )
                 })}
-              </CardContent>
-            </Card>
+              </div>
+              
+              {/* Save All Button at Bottom */}
+              <div className="mt-6">
+                <button 
+                  onClick={saveAllToInventory} 
+                  disabled={loading} 
+                  className="w-full py-4 bg-black text-white rounded-full text-base font-medium hover:bg-gray-800 transition-all disabled:opacity-50"
+                >
+                  {loading ? '保存中...' : '全部保存'}
+                </button>
+              </div>
+            </div>
           )}
 
           {/* 使用说明 */}
@@ -999,6 +1191,8 @@ export default function UploadPage() {
                 </div>
           </div>
         )}
+
+
       </div>
     </AuthGuard>
   )

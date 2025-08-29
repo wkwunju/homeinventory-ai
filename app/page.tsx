@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useItemsCache } from '@/lib/items-cache'
 import { useLanguage } from '@/lib/i18n'
 import AuthGuard from '@/components/auth-guard'
-import { Plus, Search, Package, Grid3X3, List, Sparkles, Home, MapPin, Image as ImageIcon, Edit3, Share2, Crown } from 'lucide-react'
+import { Plus, Search, Package, Grid3X3, List, Sparkles, Home, MapPin, Image as ImageIcon, Edit3, Share2, Crown, Eye, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -234,51 +234,50 @@ export default function HomePage() {
     }
 
     return (
-                    <div className="grid gap-4">
-                {items.map(item => (
-          <div key={item.id} className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white/90 backdrop-blur-sm p-4 transition-all duration-300 hover:shadow-xl hover:border-sky-300/60 hover:-translate-y-1 shadow-lg shadow-slate-100/50">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-3 w-full">
-                <div className="flex-1">
-                  <div className="font-semibold text-slate-800 text-lg mb-2">{item.name}</div>
-                  <div className="flex flex-col gap-2 text-sm text-slate-600 mb-2 leading-tight">
-                    <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-sky-500" />
-                      <span>数量：{item.quantity}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-emerald-500" />
-                      <span className="whitespace-normal">{t('home.location')}：{item.spaces?.name || t('home.unspecified')}</span>
-                    </div>
-                    {item.category && (
-                      <div>
-                        <span className="inline-flex items-center rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 px-3 py-1 text-xs font-medium text-emerald-700 border border-emerald-200/60">
-                          {item.category}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  {item.expire_date && (
-                    <div className="flex items-center gap-1 text-sm text-amber-600">
-                      <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
-                      {t('home.expire')}: {new Date(item.expire_date).toLocaleDateString()}
-                    </div>
+      <div className="grid gap-3">
+        {items.map(item => (
+          <div key={item.id} className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 transition-all duration-300 hover:shadow-md hover:border-gray-200">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-semibold text-slate-800 text-lg truncate">{item.name}</span>
+                  {item.category && (
+                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 border border-blue-100 shrink-0">
+                      {item.category}
+                    </span>
                   )}
                 </div>
+                <div className="flex flex-col gap-1 text-sm text-slate-600 leading-tight">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-blue-500" />
+                    <span>数量：{item.quantity}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-green-500" />
+                    <span className="truncate">{t('home.location')}：{item.spaces?.name || t('home.unspecified')}</span>
+                  </div>
+                </div>
+                {item.expire_date && (
+                  <div className="flex items-center gap-1 text-sm text-amber-600 mt-1">
+                    <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
+                    {t('home.expire')}: {new Date(item.expire_date).toLocaleDateString()}
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 w-full sm:w-auto mt-2 sm:mt-0">
+              <div className="flex flex-col gap-2 shrink-0">
                 <Link 
                   href={`/item/${item.id}`}
-                  className="modern-button-ghost inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 sm:min-w-[120px] whitespace-nowrap shrink-0"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                  title="查看详情"
                 >
-                  {t('home.viewDetail')}
-                  <Sparkles className="h-4 w-4" />
+                  <Eye className="h-4 w-4" />
                 </Link>
                 <button
                   onClick={() => handleDeleteHomeItem(item.id)}
-                  className="modern-button-secondary inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 sm:min-w-[100px] whitespace-nowrap shrink-0 text-red-600 hover:bg-red-50"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                  title="删除"
                 >
-                  {t('common.delete')}
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -388,22 +387,8 @@ export default function HomePage() {
   return (
     <AuthGuard>
       <div className="min-h-screen pb-24">
-        <div className="w-full max-w-5xl mx-auto px-4 pt-8">
-          {/* 头部 */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-500 flex items-center justify-center shadow-lg">
-                  <Home className="h-6 w-6 text-white" />
-                </div>
-                <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  家庭储物管理
-                </h1>
-              </div>
-              {/* 移除头部欢迎语，改为下方概览卡片展示 */}
-            </div>
-            <div className="h-10" />
-          </div>
+        <div className="w-full max-w-5xl mx-auto px-2 sm:px-4 pt-6">
+
 
           {/* 概览卡片 + landing style intro */}
           <div className="mb-5">
@@ -436,7 +421,7 @@ export default function HomePage() {
                   </div>
                   <button
                     onClick={handleOpenShareModal}
-                    className="modern-button-primary inline-flex items-center gap-2 px-5 py-3"
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-all"
                     aria-label="生成分享图"
                   >
                     <Share2 className="w-5 h-5" />
@@ -447,63 +432,50 @@ export default function HomePage() {
             </Card>
           </div>
 
-          {/* Toggle + content header merged */}
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <div className="flex gap-3 overflow-x-auto">
+          {/* Tabs */}
+          <div className="mb-8 flex items-center justify-between gap-4">
+            <div className="flex gap-2 overflow-x-auto">
               <button
                 onClick={() => handleTabChange('items')}
-                className={`px-6 py-2.5 font-medium transition-all duration-200 rounded-full whitespace-nowrap ${
+                className={`px-5 py-3 font-medium transition-all duration-200 rounded-full whitespace-nowrap border-0 outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 ${
                   activeTab === 'items'
                     ? 'bg-black text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
-                aria-label={t('home.manageItems')}
+                style={{ boxShadow: 'none' }}
               >
                 {t('home.myItems')}
               </button>
               <button
                 onClick={() => handleTabChange('spaces')}
-                className={`px-6 py-2.5 font-medium transition-all duration-200 rounded-full whitespace-nowrap ${
+                className={`px-5 py-3 font-medium transition-all duration-200 rounded-full whitespace-nowrap border-0 outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 ${
                   activeTab === 'spaces'
                     ? 'bg-black text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
-                aria-label={t('home.manageSpaces')}
+                style={{ boxShadow: 'none' }}
               >
                 {t('home.mySpaces')}
               </button>
             </div>
 
-            <div className="w-full sm:w-auto flex justify-end sm:justify-start">
-              {activeTab === 'items' ? (
-                <button
-                  onClick={() => setShowAddItemModal(true)}
-                  className="inline-flex items-center justify-center w-12 h-12 rounded-full shadow-md text-white bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] hover:shadow-lg transition-all"
-                  aria-label={t('home.addItemCTA')}
-                >
-                  <Plus className="w-5 h-5" />
-                </button>
-              ) : (
-                <button
-                  onClick={() => setShowAddSpaceModal(true)}
-                  className="inline-flex items-center justify-center w-12 h-12 rounded-full shadow-md text-white bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] hover:shadow-lg transition-all"
-                  aria-label={t('home.addSpaceCTA')}
-                >
-                  <Plus className="w-5 h-5" />
-                </button>
-              )}
-            </div>
+            <button
+              onClick={() => activeTab === 'items' ? setShowAddItemModal(true) : setShowAddSpaceModal(true)}
+              className="inline-flex items-center justify-center w-12 h-12 rounded-full text-white bg-black hover:bg-gray-800 transition-all"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
           </div>
 
-          {/* 内容区域 */}
-          <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 shadow-sky-100/50 overflow-hidden">
+          {/* Content */}
+          <div>
             {loading ? (
               <div className="text-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500 mx-auto mb-6"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-6"></div>
                 <p className="text-slate-600 text-lg">{t('common.loading')}</p>
               </div>
             ) : (
-              <div className="p-8">
+              <div>
                 {isSearching ? (
                   // 搜索结果显示
                   <div>
@@ -675,22 +647,21 @@ export default function HomePage() {
       {showAddItemModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowAddItemModal(false)}>
           <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200/60 shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-semibold text-slate-800 mb-4 text-center">选择添加方式</h3>
             <div className="space-y-3">
               <Link href="/upload" className="block">
-                <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-[#93C5FD] via-[#A5B4FC] to-[#C4B5FD] text-white shadow-md hover:shadow-lg transition-all">
+                <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-black text-white hover:bg-gray-800 transition-all">
                   <ImageIcon className="h-5 w-5 text-white" />
                   AI 识别添加
                 </button>
               </Link>
               <Link href="/add" className="block">
-                <button className="w-full flex items-center gap-3 p-4 border border-slate-200/60 rounded-xl bg-white hover:bg-slate-50/80 transition-all">
-                  <Edit3 className="h-5 w-5 text-slate-600" />
+                <button className="w-full flex items-center gap-3 p-4 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 transition-all">
+                  <Edit3 className="h-5 w-5 text-gray-600" />
                   手动添加
                 </button>
               </Link>
             </div>
-            <button onClick={() => setShowAddItemModal(false)} className="mt-6 w-full modern-button-secondary px-4 py-3">关闭</button>
+            <button onClick={() => setShowAddItemModal(false)} className="mt-6 w-full bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl px-4 py-3 font-medium transition-all">关闭</button>
           </div>
         </div>
       )}
