@@ -19,7 +19,7 @@ export default function TopBar() {
   const initial = user.email?.[0]?.toUpperCase() || 'U'
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#eaeaea] shadow-[0_6px_20px_rgba(0,0,0,0.05)]">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#eaeaea] shadow-[0_6px_20px_rgba(0,0,0,0.05)]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
       <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
         <button
           onClick={() => router.push('/')}

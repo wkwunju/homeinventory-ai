@@ -9,12 +9,18 @@
     /* 移动端优化 */
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    /* iOS Safe Area support */
+    height: 100%;
+    height: -webkit-fill-available;
   }
   body {
     @apply text-slate-900 font-sans overflow-y-auto;
     font-size: 14px !important; /* Default inline text */
     /* 移动端滚动优化 */
     -webkit-overflow-scrolling: touch;
+    /* iPhone safe area handling */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
   }
 
   /* Custom scrollbar styling - black theme */

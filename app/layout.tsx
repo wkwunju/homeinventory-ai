@@ -16,6 +16,13 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
     apple: '/apple-icon.png',
   },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover'
+  },
 }
 
 export default function RootLayout({
@@ -29,9 +36,9 @@ export default function RootLayout({
         <LanguageProvider>
           <AuthProvider>
             <ItemsCacheProvider>
-              <div className="min-h-screen overflow-y-auto pt-16 touch-pan-y">
+              <div className="min-h-screen overflow-y-auto touch-pan-y" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top))', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
                 <TopBar />
-                <main className="px-5 sm:px-6">
+                <main className="px-3 sm:px-6" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
                   {children}
                 </main>
               </div>
