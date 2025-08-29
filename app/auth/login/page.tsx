@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
@@ -29,8 +29,14 @@ export default function LoginPage() {
     { key: 's3', title: t('welcome.step3'), desc: t('welcome.step3Desc'), bg: 'from-fuchsia-100 to-pink-100', Icon: Users },
   ]
 
-  const prevSlide = () => setSlide((s) => (s - 1 + slides.length) % slides.length)
-  const nextSlide = () => setSlide((s) => (s + 1) % slides.length)
+  // Auto-slide functionality with fade transitions instead of sliding
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSlide((s) => (s + 1) % slides.length)
+    }, 2500) // Change slide every 2.5 seconds
+
+    return () => clearInterval(interval)
+  }, [slides.length])
 
   const ActiveIcon = slides[slide].Icon
 
@@ -62,39 +68,31 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="w-full max-w-6xl mx-auto px-4 pt-16 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          {/* Left: Withings-style onboarding card */}
-          <div>
-            <div className="rounded-3xl overflow-hidden bg-white/90 border border-white/40 shadow-xl">
-              <div className={`h-48 md:h-64 bg-gradient-to-br ${slides[slide].bg} flex items-center justify-center`}>
-                <ActiveIcon className="w-14 h-14 text-slate-700" />
+      <div className="w-full max-w-md mx-auto px-4 pt-16 pb-16">
+        {/* App name and description */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-6">MaisonStock</h1>
+          <div className="relative h-24">
+            {slides.map((slideItem, index) => (
+              <div 
+                key={slideItem.key}
+                className={`absolute inset-0 px-4 transition-opacity duration-700 ease-in-out ${
+                  index === slide ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <h2 className="text-xl font-semibold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent mb-2">
+                  {slideItem.title}
+                </h2>
+                <p className="text-slate-600">
+                  {slideItem.desc}
+                </p>
               </div>
-              <div className="p-6">
-                <h2 className="text-[20pt] font-bold text-slate-900 mb-2">{slides[slide].title}</h2>
-                <p className="text-slate-600">{slides[slide].desc}</p>
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {slides.map((s, i) => (
-                      <span key={s.key} className={`h-2 w-2 rounded-full ${i === slide ? 'bg-slate-900' : 'bg-slate-300'}`} />
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={prevSlide} className="modern-button-secondary px-4 py-2">‹</button>
-                    <button type="button" onClick={nextSlide} className="modern-button-primary px-4 py-2">›</button>
-                  </div>
-                </div>
-                <Link href="/auth/register" className="block mt-6">
-                  <button className="w-full h-12 rounded-full bg-black text-white font-semibold transition hover:opacity-90">
-                    {t('welcome.ctaStart')}
-                  </button>
-                </Link>
-              </div>
-            </div>
+            ))}
           </div>
+        </div>
 
-          {/* Right: login form */}
-          <div className="w-full max-w-md lg:ml-auto">
+        {/* Login form */}
+        <div>
             <Card className="border-white/60 shadow-[0_12px_40px_rgba(99,102,241,0.12)] bg-white/95 backdrop-blur">
               <CardContent className="p-6 space-y-4">
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -145,9 +143,13 @@ export default function LoginPage() {
                     </div>
                   )}
 
-                  <Button type="submit" disabled={loading} variant="primary" size="lg" className="w-full h-12">
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="w-full h-12 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     {loading ? t('common.loading') : t('auth.login')}
-                  </Button>
+                  </button>
                 </form>
 
                 <div className="text-center">
@@ -160,7 +162,6 @@ export default function LoginPage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
         </div>
       </div>
     </div>

@@ -202,9 +202,13 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              <Button type="submit" disabled={loading} variant="primary" size="lg" className="w-full h-12 text-base">
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full h-12 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base"
+              >
                 {loading ? t('common.loading') : t('auth.register')}
-              </Button>
+              </button>
             </form>
 
             <div className="text-center">
